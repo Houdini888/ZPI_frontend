@@ -16,4 +16,11 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
 flutter:
+  assets:
+    - assets/images/band1.jpg
+    - assets/images/band_pf.jpg
+    - assets/images/band_bs.jpg
+    - assets/images/band_akcent.jpg
+
+
   uses-material-design: true
