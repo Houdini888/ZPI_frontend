@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:zpi_frontend/app_drawer_menu.dart';
+import 'package:zpi_frontend/pdf_document_class.dart';
 
 
 class ReaderScreen extends StatefulWidget{
   ReaderScreen(this.doc,{super.key});
-  String doc;
+  PdfNotesFile doc;
 
   @override
   State<ReaderScreen> createState() => _ReaderScreenState();
@@ -19,7 +21,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   void initState() {
     super.initState();
-    pdfControllerPinch = PdfController(document: PdfDocument.openFile(widget.doc));
+    pdfControllerPinch = PdfController(document: PdfDocument.openFile(widget.doc.filePath));
   }
   @override
   Widget build(BuildContext context) {
@@ -29,9 +31,15 @@ class _ReaderScreenState extends State<ReaderScreen> {
               .of(context)
               .colorScheme
               .inversePrimary,
-          leading: IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
-          title: Text('Flutter PDF View')
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: new Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+          title: Text(widget.doc.name)
       ),
+      drawer: AppDrawer(),
       body: _buildUI(),
     );
   }
