@@ -2,6 +2,8 @@ import 'package:zpi_frontend/src/models/band.dart';
 import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/app_drawer_menu.dart';
+
 class BandDetailsScreen extends StatelessWidget {
   final Band band;
 
@@ -10,7 +12,7 @@ class BandDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Using a CustomScrollView to allow for flexible scrolling behavior
+      drawer: AppDrawer(),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(

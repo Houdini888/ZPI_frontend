@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
-import 'package:zpi_frontend/app_drawer_menu.dart';
-import 'package:zpi_frontend/pdf_document_class.dart';
+import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
+import 'package:zpi_frontend/src/models/pdf_document_class.dart';
 
 
 class ReaderScreen extends StatefulWidget{

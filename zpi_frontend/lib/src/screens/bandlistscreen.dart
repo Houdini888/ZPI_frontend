@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/band.dart';
 import 'package:zpi_frontend/src/screens/banddetailsscreen.dart';
 
+import '../widgets/app_drawer_menu.dart';
+
 class BandListScreen extends StatelessWidget {
   final List<Band> bands = [
     Band(name: "Pink Floyd", imageUrl: 'images/band_pf.jpg'),
@@ -12,6 +14,7 @@ class BandListScreen extends StatelessWidget {
 @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: AppDrawer(),
       appBar: AppBar(
         title: Text('Bands List'),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/library_main.dart';
+import 'package:zpi_frontend/src/screens/library_main.dart';
+import 'package:zpi_frontend/src/screens/bandlistscreen.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -16,7 +17,10 @@ class _AppDrawerState extends State<AppDrawer> {
           // Drawer Header
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.purpleAccent,
+              color: Theme
+                  .of(context)
+                  .colorScheme
+                  .inversePrimary,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,14 +70,14 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Bands'),
             onTap: () {
               Navigator.pop(context); // Close the drawer
-              // Add navigation or functionality
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> BandListScreen()));
             },
           ),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);// Close the drawer
               // Add navigation or functionality
             },
           ),
