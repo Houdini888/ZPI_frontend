@@ -17,26 +17,36 @@ class Memberlist extends StatelessWidget {
       automaticallyImplyLeading: false,
     ),
     body: ListView.builder(
-      itemCount: members.length,
+      itemCount: members.length+1,
       itemBuilder: (context, index) {
-        final member = members[index];
-        return Column(
-          children: <Widget> [
-            ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage(member.imageUrl),
+        if (index < members.length) {
+          final member = members[index];
+          return Column(
+            children: <Widget> [
+              ListTile(
+              leading: CircleAvatar(
+                backgroundImage: AssetImage(member.imageUrl),
+              ),
+              title: Text('${member.name} ${member.surname}'),
+              trailing: ElevatedButton(
+                onPressed: (){},
+                child: Text("Usuń członka")),
+              onTap: () {},
             ),
-            title: Text('${member.name} ${member.surname}'),
-            onTap: () {
-              // TODO
-              // Navigate to the MemberDetailsScreen when tapped
-            },
-          ),
-          Divider(),
-          ],
-        );
+            Divider(),
+            ],
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              //TODO: Adding members
+              onPressed: (){}, 
+              child: Text("Dodaj członków")),
+          );
+        }
       }
-      ),
+    ),
   );
 }
 }
