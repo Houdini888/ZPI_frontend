@@ -42,37 +42,43 @@ class BandDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
+                  const Column(
+                    children: [
+                      const Text(
                     "Current song: TODO",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const ElevatedButton(
+                    onPressed: null,
+                     child: Text("Choose the song")
+                     ),
+                    ],
+                  ),
 
+                  //separator
                   const SizedBox(height: 16),
-                  // Placeholder for Future Functionalities
-                  // Example: Upcoming Events, Band Members, etc.
-                  // You can add widgets here as you expand functionality
-                    Row(
+                  
+                  Row(
                     children: [
-                      const Expanded(
-                        flex: 1,
-                        child: ElevatedButton(
-                          onPressed: null,
-                          child: Text("Choose your piece"),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
+                      // const Expanded(
+                      //   flex: 1,
+                      //   child: ElevatedButton(
+                      //       onPressed: null,
+                      //       child: Text("Choose your piece"),
+                      //       ),
+                      // ),
+                      const SizedBox(width: 100),
                       Expanded(
-                        flex: 3,
                         child: SizedBox(
-                          height: 200,
+                          height: 500,
                           child: Memberlist(),
                         )
-                        ) 
+                      ), 
                     ],
-                  )
+                  ),
 
                   // Add more widgets here in the future
                 ],
