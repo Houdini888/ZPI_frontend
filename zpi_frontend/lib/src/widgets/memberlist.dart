@@ -14,12 +14,15 @@ class Memberlist extends StatelessWidget {
   return Scaffold(
     appBar: AppBar(
       title: Text("Band members"),
+      automaticallyImplyLeading: false,
     ),
     body: ListView.builder(
       itemCount: members.length,
       itemBuilder: (context, index) {
         final member = members[index];
-        return ListTile(
+        return Column(
+          children: <Widget> [
+            ListTile(
             leading: CircleAvatar(
               backgroundImage: AssetImage(member.imageUrl),
             ),
@@ -27,14 +30,11 @@ class Memberlist extends StatelessWidget {
             onTap: () {
               // TODO
               // Navigate to the MemberDetailsScreen when tapped
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => BandDetailsScreen(band: band)
-              //     )
-              // );
             },
-          );
+          ),
+          Divider(),
+          ],
+        );
       }
       ),
   );

@@ -17,11 +17,7 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/images/band1.jpg
-    - assets/images/band_pf.jpg
-    - assets/images/band_bs.jpg
-    - assets/images/band_akcent.jpg
-    - assets/images/prof_dziekan.jpg
+    - assets/images/
 
 
   uses-material-design: true
