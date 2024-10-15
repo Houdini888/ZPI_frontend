@@ -21,6 +21,7 @@ flutter:
     - assets/images/band_pf.jpg
     - assets/images/band_bs.jpg
     - assets/images/band_akcent.jpg
+    - assets/images/prof_dziekan.jpg
 
 
   uses-material-design: true
