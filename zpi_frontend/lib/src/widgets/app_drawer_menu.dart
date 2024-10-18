@@ -52,24 +52,22 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
-              // Add navigation or functionality
+              Navigator.popUntil(context, (route) => route.isFirst);
             },
           ),
           ListTile(
             leading: Icon(Icons.library_music_outlined),
             title: Text('Library'),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.popUntil(context, (route) => route.isFirst); // Close the drawer
               Navigator.push(context, MaterialPageRoute(builder: (context)=> LibraryMainPage(title: 'Library',)));
-
             },
           ),
           ListTile(
             leading: Icon(Icons.groups),
             title: Text('Bands'),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.popUntil(context, (route) => route.isFirst);
               Navigator.push(context, MaterialPageRoute(builder: (context)=> BandListScreen()));
             },
           ),
@@ -77,11 +75,17 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: Icon(Icons.settings),
             title: Text('Settings'),
             onTap: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.list_alt_sharp),
+            title: Text('Setlists'),
+            onTap: () {
               Navigator.pop(context);// Close the drawer
               // Add navigation or functionality
             },
           ),
-
           Divider(), // Add a horizontal divider
 
           ListTile(
