@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/screens/bandlistscreen.dart';
 import 'package:zpi_frontend/src/screens/library_main.dart';
+import 'package:zpi_frontend/src/screens/setlists_main.dart';
 import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
 
 void main() {
@@ -120,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
             clipBehavior: Clip.hardEdge,
             child: InkWell(
               onTap: () {
-                debugPrint('Card tapped.');
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> const SetlistsMain()));
               },
               child: const SizedBox(
                 child:

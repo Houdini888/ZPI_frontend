@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/screens/library_main.dart';
 import 'package:zpi_frontend/src/screens/bandlistscreen.dart';
+import 'package:zpi_frontend/src/screens/setlists_main.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -82,8 +83,8 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: Icon(Icons.list_alt_sharp),
             title: Text('Setlists'),
             onTap: () {
-              Navigator.pop(context);// Close the drawer
-              // Add navigation or functionality
+              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> SetlistsMain()));
             },
           ),
           Divider(), // Add a horizontal divider
