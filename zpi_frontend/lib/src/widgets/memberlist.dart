@@ -3,11 +3,9 @@ import 'package:zpi_frontend/src/models/member.dart';
 
 class Memberlist extends StatelessWidget {
 
-  final List<Member> members = [
-    Member(name: "Big", surname: "Dziekan", imageUrl: 'images/prof_dziekan.jpg'),
-    Member(name: "Yung", surname: "Dean", imageUrl: 'images/prof_dziekan.jpg'),
-    Member(name: "P.", surname: "Deanny", imageUrl: 'images/prof_dziekan.jpg')
-  ];
+  late List<dynamic> members;
+
+  Memberlist({required this.members});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +23,9 @@ class Memberlist extends StatelessWidget {
             children: <Widget> [
               ListTile(
               leading: CircleAvatar(
-                backgroundImage: AssetImage(member.imageUrl),
+                backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
               ),
-              title: Text('${member.name} ${member.surname}'),
+              title: Text(members[index]),
               trailing: ElevatedButton(
                 onPressed: (){},
                 child: Text("Usuń członka")),

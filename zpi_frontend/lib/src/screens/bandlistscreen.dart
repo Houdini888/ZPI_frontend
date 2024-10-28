@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/src/models/band.dart';
+import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/screens/banddetailsscreen.dart';
+import 'package:zpi_frontend/src/services/apiservice.dart';
 
-class BandListScreen extends StatelessWidget {
-  final List<Band> bands = [
-    Band(name: "Pink Floyd", imageUrl: 'images/band_pf.jpg'),
-    Band(name: "Black Sabbath", imageUrl: 'images/band_bs.jpg'),
-    Band(name: "Akcent", imageUrl: 'images/band_akcent.jpg')
-  ];
+
+class BandListScreen extends StatefulWidget {
+  @override
+  _BandListScreenState createState() => _BandListScreenState();
+}
+
+class _BandListScreenState extends State<BandListScreen> {
+late Future<Group> _group;
+
+@override
+void initState() {
+  super.initState();
+  _group = ApiService().fetchGroupByName();
+}
 
 @override
   Widget build(BuildContext context) {
@@ -15,24 +24,31 @@ class BandListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Bands List'),
       ),
-      body: ListView.builder(
-        itemCount: bands.length,
-        itemBuilder: (context, index) {
-          final band = bands[index];
-          return ListTile(
-            title: Text(band.name),
-            onTap: () {
-              // Navigate to the BandDetailsScreen when tapped
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BandDetailsScreen(band: band)
-                  )
-              );
-            },
-          );
-        },
-      ),
+      body: FutureBuilder(
+        future: _group, 
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('Group not found.'));
+          } else {
+            final group = snapshot.data!;
+            return ListTile(
+              title: Text(group.groupName),
+              onTap: (){
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => GroupDetailsScreen(group: group)
+                    ) 
+                  );
+              }
+            );
+          };
+        }
+        )
     );
   }
 
