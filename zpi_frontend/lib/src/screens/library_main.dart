@@ -1,12 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
 import 'package:zpi_frontend/src/models/pdf_document_class.dart';
 import 'package:zpi_frontend/src/screens/pdf_preview.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-
-
 
 class LibraryMainPage extends StatefulWidget {
   const LibraryMainPage({super.key, required this.title});
@@ -18,11 +18,16 @@ class LibraryMainPage extends StatefulWidget {
 }
 
 class _LibraryMainPageState extends State<LibraryMainPage> {
-  List<PdfNotesFile> docsList=[];
+  List<PdfNotesFile> docsList = [];
+
+  final Future<SharedPreferencesWithCache> _prefs =
+  SharedPreferencesWithCache.create(
+      cacheOptions: const SharedPreferencesWithCacheOptions(
+      ));
 
   Future _initPdfs() async {
     final Directory appDir = await getApplicationDocumentsDirectory();
-    final List<FileSystemEntity> files = appDir.listSync();  // List all files
+    final List<FileSystemEntity> files = appDir.listSync(); // List all files
 
     final List<PdfNotesFile> loadedPdfs = [];
     for (FileSystemEntity entity in files) {
@@ -30,8 +35,11 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
         loadedPdfs.add(PdfNotesFile(entity));
       }
     }
-    final pdfsList = loadedPdfs.where((string) =>
-        string.filePath.endsWith(".pdf")).toList();
+    final pdfsList =
+        loadedPdfs.where((string) => string.filePath.endsWith(".pdf")).toList();
+
+    pdfsList.sort();
+
     setState(() {
       docsList = pdfsList;
     });
@@ -40,7 +48,7 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
   Future<void> _pickAndSavePdf() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf'],  // Allow only PDFs
+      allowedExtensions: ['pdf'], // Allow only PDFs
     );
 
     if (result != null && result.files.single.path != null) {
@@ -57,7 +65,8 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       File savedPdf = await pickedPdf.copy('${appDir.path}/$fileName');
 
       setState(() {
-        docsList.add(PdfNotesFile(savedPdf));
+        if(!docsList.contains(PdfNotesFile(savedPdf)))
+          docsList.add(PdfNotesFile(savedPdf));
       });
     }
   }
@@ -67,14 +76,16 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
     super.initState();
     _initPdfs();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: Builder(
-           builder: (context) => IconButton( icon: new Icon(Icons.menu),
-          onPressed: () => Scaffold.of(context).openDrawer(),
+          builder: (context) => IconButton(
+            icon: new Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: Text(widget.title),
@@ -83,37 +94,77 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       body: _buildUI(),
     );
   }
+
   Widget _buildUI() {
     return Padding(
         padding: EdgeInsets.symmetric(vertical: 18.0, horizontal: 16.0),
         child: SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ElevatedButton(
-            onPressed: _pickAndSavePdf,
-            child: Text('Pick and Save PDF'),
-          ),
-          Text(
-            "Pliki",
-          ),
-          Column(children: docsList.map((doc) => ListTile(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> ReaderScreen(doc)));
-            },
-            onLongPress: (){
+          physics: ScrollPhysics(),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+            ElevatedButton(
+              onPressed: _pickAndSavePdf,
+              child: Text('Pick and Save PDF'),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: docsList.length,
+              itemBuilder: (context, index) {
+                final pdfName = docsList[index].name;
+                return Slidable(
+                  key: Key(pdfName),
+                  startActionPane:
+                      ActionPane(motion: const StretchMotion(), children: [
+                    SlidableAction(
+                      backgroundColor: Colors.red,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                      onPressed: (context) => _onDismissed(index),
+                    )
+                  ]),
+                  child: buildPdfTile(docsList[index]),
+                );
+              },
+            ),
+          ]),
+        ));
+  }
 
-            },
-            title: Text(doc.name),
-            leading: Icon(Icons.picture_as_pdf,
-              color: Colors.red,
-              size: 32.0,),
-          )).toList(),)
-        ],
-      ),
-    ));
+  Widget buildPdfTile(PdfNotesFile doc) => ListTile(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReaderScreen([doc], doc.name)));
+        },
+        title: Text(doc.name),
+        leading: const Icon(
+          Icons.picture_as_pdf,
+          color: Colors.red,
+          size: 32.0,
+        ),
+      );
+
+  Future<void> _onDismissed(int index) async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    final List<String> list = (prefs.getStringList('setlists') ?? []);
+    File pdfToDelete = File(docsList[index].filePath);
+    pdfToDelete.delete();
+
+    for(String setlist in list)
+      {
+        final List<String> pdfsList = (prefs.getStringList(setlist) ?? []);
+
+        pdfsList.removeWhere((item) => item == docsList[index].name);
+
+        await prefs.setStringList(setlist,pdfsList);
+      }
+
+    docsList.removeAt(index);
+
+    setState(() {});
   }
 }
-
-

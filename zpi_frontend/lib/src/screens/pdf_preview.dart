@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
@@ -5,8 +6,10 @@ import 'package:zpi_frontend/src/models/pdf_document_class.dart';
 
 
 class ReaderScreen extends StatefulWidget{
-  ReaderScreen(this.doc,{super.key});
-  PdfNotesFile doc;
+  const ReaderScreen(this.doc,this.title,{super.key, this.startPdfIndex = 0});
+  final List<PdfNotesFile> doc;
+  final String title;
+  final int startPdfIndex;
 
   @override
   State<ReaderScreen> createState() => _ReaderScreenState();
@@ -14,6 +17,7 @@ class ReaderScreen extends StatefulWidget{
 
 class _ReaderScreenState extends State<ReaderScreen> {
   late PdfController pdfControllerPinch;
+  late int currentPdfIndex;
 
   int totalPageCount = 0,
       currentPage = 1;
@@ -21,7 +25,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   void initState() {
     super.initState();
-    pdfControllerPinch = PdfController(document: PdfDocument.openFile(widget.doc.filePath));
+    currentPdfIndex = widget.startPdfIndex;
+    pdfControllerPinch = PdfController(document: PdfDocument.openFile(widget.doc[widget.startPdfIndex].filePath));
   }
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
-          title: Text(widget.doc.name)
+          title: Text(widget.title)
       ),
       drawer: AppDrawer(),
       body: _buildUI(),
@@ -53,6 +58,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            if(widget.doc.length!=1)
+            Text(currentPdfIndex.toString()),
+            if(currentPdfIndex>0)
+              IconButton(onPressed: () {
+                {
+                  currentPdfIndex--;
+                  pdfControllerPinch.loadDocument(PdfDocument.openFile(
+                      widget.doc[currentPdfIndex].filePath));
+                }
+              },
+                  icon: const Icon(Icons.keyboard_double_arrow_left,))
+            else if(widget.doc.length!=1)
+              IconButton(onPressed: () {},
+                icon: const Icon(Icons.keyboard_double_arrow_left,),
+                color: Colors.grey,),
             IconButton(onPressed: () {
               pdfControllerPinch.previousPage(
                 duration: Duration(milliseconds: 500), curve: Curves.linear,);
@@ -62,6 +82,22 @@ class _ReaderScreenState extends State<ReaderScreen> {
               pdfControllerPinch.nextPage(
                 duration: Duration(milliseconds: 500), curve: Curves.linear,);
             }, icon: Icon(Icons.arrow_forward,)),
+             if(currentPdfIndex+1<widget.doc.length)
+              IconButton(onPressed: () {
+                {
+
+                  currentPdfIndex++;
+                  pdfControllerPinch.loadDocument(PdfDocument.openFile(
+                      widget.doc[currentPdfIndex].filePath));
+                }
+                },
+                icon: const Icon(Icons.keyboard_double_arrow_right,))
+            else if(widget.doc.length != 1)
+              IconButton(onPressed: () {},
+                  icon: const Icon(Icons.keyboard_double_arrow_right,),
+              color: Colors.grey,),
+            if(widget.doc.length!=1)
+              Text((widget.doc.length-1-currentPdfIndex).toString())
           ],),
       ],
     );

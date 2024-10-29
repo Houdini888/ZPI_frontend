@@ -4,7 +4,7 @@ import 'package:convert/convert.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-class PdfNotesFile {
+class PdfNotesFile implements Comparable<PdfNotesFile>{
   String filePath;
   String name;
   Future<Digest> hash;
@@ -13,6 +13,16 @@ class PdfNotesFile {
       : filePath = file.path,
         name = path.basenameWithoutExtension(file.path),
         hash = getFileSha256(file);
+
+  int compareTo(PdfNotesFile other) {
+    return name.compareTo(other.name);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PdfNotesFile
+    && other.name == name;
+  }
 }
 Future<Digest> getFileSha256(File file) async {
   final reader = ChunkedStreamReader(file.openRead());
