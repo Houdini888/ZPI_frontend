@@ -3,11 +3,9 @@ import 'package:zpi_frontend/src/models/member.dart';
 
 class Memberlist extends StatelessWidget {
 
-  final List<Member> members = [
-    Member(name: "Big", surname: "Dziekan", imageUrl: 'images/prof_dziekan.jpg'),
-    Member(name: "Yung", surname: "Dean", imageUrl: 'images/prof_dziekan.jpg'),
-    Member(name: "P.", surname: "Deanny", imageUrl: 'images/prof_dziekan.jpg')
-  ];
+  late List<dynamic> members;
+
+  Memberlist({required this.members});
 
   @override
   Widget build(BuildContext context) {
@@ -17,26 +15,36 @@ class Memberlist extends StatelessWidget {
       automaticallyImplyLeading: false,
     ),
     body: ListView.builder(
-      itemCount: members.length,
+      itemCount: members.length+1,
       itemBuilder: (context, index) {
-        final member = members[index];
-        return Column(
-          children: <Widget> [
-            ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage(member.imageUrl),
+        if (index < members.length) {
+          final member = members[index];
+          return Column(
+            children: <Widget> [
+              ListTile(
+              leading: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
+              ),
+              title: Text(members[index]),
+              trailing: ElevatedButton(
+                onPressed: (){},
+                child: Text("Usuń członka")),
+              onTap: () {},
             ),
-            title: Text('${member.name} ${member.surname}'),
-            onTap: () {
-              // TODO
-              // Navigate to the MemberDetailsScreen when tapped
-            },
-          ),
-          Divider(),
-          ],
-        );
+            Divider(),
+            ],
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              //TODO: Adding members
+              onPressed: (){}, 
+              child: Text("Dodaj członków")),
+          );
+        }
       }
-      ),
+    ),
   );
 }
 }

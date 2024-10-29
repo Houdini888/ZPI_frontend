@@ -1,18 +1,19 @@
-import 'package:zpi_frontend/src/models/band.dart';
+import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/app_drawer_menu.dart';
+class GroupDetailsScreen extends StatelessWidget {
+  final Group group;
 
-class BandDetailsScreen extends StatelessWidget {
-  final Band band;
-
-  const BandDetailsScreen({super.key, required this.band});
+  const GroupDetailsScreen({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
+
+    final users = group.users;
+
     return Scaffold(
-      drawer: AppDrawer(),
+      // Using a CustomScrollView to allow for flexible scrolling behavior
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -20,22 +21,18 @@ class BandDetailsScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                band.name,
+                group.groupName,
                 style: const TextStyle(
                   fontSize: 32.0,            // Large text size
                   fontWeight: FontWeight.bold, // Bold (thick) text
                   color: Colors.blueGrey
                 ),
               ),
-              background: band.imageUrl.startsWith('http')
-                  ? Image.network(
-                      band.imageUrl,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      band.imageUrl,
+              background: Image.asset(
+                      'assets/images/band_pf.jpg',
                       fit: BoxFit.cover,
                     ),
+                  
             ),
           ),
           SliverToBoxAdapter(
@@ -65,18 +62,18 @@ class BandDetailsScreen extends StatelessWidget {
                   
                   Row(
                     children: [
-                      // const Expanded(
-                      //   flex: 1,
-                      //   child: ElevatedButton(
-                      //       onPressed: null,
-                      //       child: Text("Choose your piece"),
-                      //       ),
-                      // ),
+                      const Expanded(
+                        flex: 1,
+                        child: ElevatedButton(
+                            onPressed: null,
+                            child: Text("Choose your piece"),
+                            ),
+                      ),
                       const SizedBox(width: 100),
                       Expanded(
                         child: SizedBox(
                           height: 500,
-                          child: Memberlist(),
+                          child: Memberlist(members: users,),
                         )
                       ), 
                     ],
