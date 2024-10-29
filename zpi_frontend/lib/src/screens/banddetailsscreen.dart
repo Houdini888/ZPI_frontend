@@ -1,16 +1,49 @@
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:flutter/material.dart';
+import 'package:zpi_frontend/src/services/apiservice.dart';
 
-class GroupDetailsScreen extends StatelessWidget {
+class GroupDetailsScreen extends StatefulWidget {
   final Group group;
 
   const GroupDetailsScreen({super.key, required this.group});
 
   @override
+  _GroupDetailsScreenState createState() => _GroupDetailsScreenState();
+
+}
+
+class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
+
+  late List<dynamic> users;
+
+  @override
+  void initState() {
+    super.initState();
+    users = widget.group.users;
+  }
+
+    Future<void> removeMember(String username) async{
+      print('removing $username from ${widget.group.groupName}');
+      bool success = await ApiService.removeMemberfromGroup(username, widget.group.groupName);
+
+      if(success) {
+        setState(() {
+          users.removeWhere((user) => user == username);
+
+        });
+        print('User $username removed successfully');
+      }else {
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove member')),
+        );
+      }
+  }
+
+  @override
   Widget build(BuildContext context) {
 
-    final users = group.users;
+    final users = widget.group.users;
 
     return Scaffold(
       // Using a CustomScrollView to allow for flexible scrolling behavior
@@ -21,7 +54,7 @@ class GroupDetailsScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                group.groupName,
+                widget.group.groupName,
                 style: const TextStyle(
                   fontSize: 32.0,            // Large text size
                   fontWeight: FontWeight.bold, // Bold (thick) text
@@ -73,7 +106,11 @@ class GroupDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: SizedBox(
                           height: 500,
-                          child: MemberList(members: users, groupname: group.groupName),
+                          child: MemberList(
+                            members: users, 
+                            groupname: widget.group.groupName,
+                            onRemoveMember: removeMember,
+                            ),
                         )
                       ), 
                     ],
