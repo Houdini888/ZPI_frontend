@@ -73,7 +73,7 @@ class GroupDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: SizedBox(
                           height: 500,
-                          child: Memberlist(members: users,),
+                          child: MemberList(members: users, groupname: group.groupName),
                         )
                       ), 
                     ],

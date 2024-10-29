@@ -1,10 +1,12 @@
 import 'dart:convert';
+// import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  static const String baseUrl = "http://localhost:8080";
+  static const String secUrl = "https://localhost:8443";
   // for testing purposes only
   final String testGroup = 'testGroup';
 
@@ -19,7 +21,7 @@ class ApiService {
   // }
 
     Future<Group> fetchGroupByName() async {
-    final response = await http.get(Uri.parse('http://localhost:8080/getGroup?group=testGroup'));
+    final response = await http.post(Uri.parse('$baseUrl/getGroup?group=testGroup'));
     if (response.statusCode == 200) {
       return Group.fromJson(json.decode(response.body));
     } else {
@@ -28,12 +30,25 @@ class ApiService {
   }
 
   Future<List<User>> fetchUsersInGroup(int groupId) async {
-    final response = await http.get(Uri.parse('$baseUrl/getUsersInGroup?groupId=$groupId'));
+    final response = await http.post(Uri.parse('$baseUrl/getUsersInGroup?groupId=$groupId'));
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse.map((user) => User.fromJson(user)).toList();
     } else {
       throw Exception('Failed to load users for group');
     }
+  }
+
+    static Future<bool> removeMemberfromGroup(String memberName, String groupName) async {
+
+    final response = await http.post(Uri.parse('$baseUrl/removeFromGroup?group=$groupName&username=$memberName'));
+
+    if (response.statusCode == 200) {
+      return true;
+    }else {
+      print("Failed to remove member: ${response.reasonPhrase}");
+      return false;
+    }
+
   }
 }

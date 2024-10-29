@@ -1,11 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/src/models/member.dart';
+import 'package:http/http.dart';
+import 'package:zpi_frontend/src/services/apiservice.dart';
 
-class Memberlist extends StatelessWidget {
+class MemberList extends StatefulWidget {
 
-  late List<dynamic> members;
+  final List<dynamic> members;
+  final String groupname;
 
-  Memberlist({required this.members});
+  MemberList({required this.members, required this.groupname});
+
+  @override
+  _MemberListState createState() => _MemberListState();
+}
+
+class _MemberListState extends State<MemberList> {
+  List<dynamic> members = [];
+
+  @override
+  void initState() {
+    super.initState();
+    members = widget.members;
+  }
+
+  Future<void> removeMember(String memberName) async{
+    print('removing $memberName from ${widget.groupname}');
+    bool success = await ApiService.removeMemberfromGroup(memberName, widget.groupname);
+
+    if(success) {
+      setState(() {
+        members = members.where((member) => member['username'] != memberName).toList();
+      });
+      print('User $memberName removed successfully');
+    }else {
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to remove member')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +58,10 @@ class Memberlist extends StatelessWidget {
               ),
               title: Text(members[index]),
               trailing: ElevatedButton(
-                onPressed: (){},
-                child: Text("Usuń członka")),
-              onTap: () {},
+                onPressed: () => removeMember(members[index]),
+                child: Text("Usuń członka")
+                ),
+              onTap: () {}
             ),
             Divider(),
             ],
@@ -48,3 +80,6 @@ class Memberlist extends StatelessWidget {
   );
 }
 }
+
+
+
