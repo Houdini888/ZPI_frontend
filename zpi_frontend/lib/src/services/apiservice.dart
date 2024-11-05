@@ -50,4 +50,29 @@ class ApiService {
     }
 
   }
+
+  static Future<String> updateAndGetTokenForGroup(String groupname, String username) async{
+     final response = await http.post(Uri.parse('$baseUrl/updateToken?group=$groupname&username=$username'));
+
+     if (response.statusCode == 200) {
+      return response.body;
+    }else {
+      print("Failed to receive token: ${response.reasonPhrase}");
+      return "";
+    }
+  }
+
+  // static Future<bool> addMemberToGroup(String username, String groupname, String instrument) async{
+  //   final response = await http.post(Uri.parse('$baseUrl/addToGroup?username=$username&group=$groupname&instrument=$instrument'));
+
+  //   if (response.statusCode == 200) {
+  //     return true;
+  //   }else {
+  //     print("Failed to add member: ${response.reasonPhrase}");
+  //     return false;
+  //   }
+
+  // }
+
+
 }

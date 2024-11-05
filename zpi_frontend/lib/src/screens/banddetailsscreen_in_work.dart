@@ -37,6 +37,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
