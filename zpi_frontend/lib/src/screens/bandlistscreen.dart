@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/group.dart';
-import 'package:zpi_frontend/src/screens/banddetailsscreen copy.dart';
+import 'package:zpi_frontend/src/screens/banddetailsscreen_in_work.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
 class BandListScreen extends StatefulWidget {

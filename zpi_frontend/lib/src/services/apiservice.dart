@@ -4,7 +4,7 @@ import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.224.177:8080";
+  static const String baseUrl = "http://localhost:8080";
   static const String secUrl = "https://192.168.224.177:8443";
   // for testing purposes only
   final String testGroup = 'testGroup';
