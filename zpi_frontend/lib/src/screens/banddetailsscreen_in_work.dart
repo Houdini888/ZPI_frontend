@@ -1,4 +1,5 @@
 import 'package:zpi_frontend/src/models/group.dart';
+import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
@@ -13,7 +14,7 @@ class GroupDetailsScreen extends StatefulWidget {
 }
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
-  late List<dynamic> users;
+  late List<User> users;
 
   @override
   void initState() {
@@ -21,16 +22,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     users = widget.group.users;
   }
 
-  Future<void> removeMember(String username) async {
-    print('Removing $username from ${widget.group.groupName}');
+  Future<void> removeMember(User user) async {
     bool success = await ApiService.removeMemberfromGroup(
-        username, widget.group.groupName);
+        user.username, widget.group.groupName);
 
     if (success) {
       setState(() {
-        users.removeWhere((user) => user == username);
+        users.removeWhere((removed) => removed == user);
       });
-      print('User $username removed successfully');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to remove member')),
@@ -116,8 +115,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       child: Text("Choose the song"),
                     ),
                     const SizedBox(height: 24),
-
-                    // Member List Section
                     SizedBox(
                       height: 500,
                       child: MemberList(

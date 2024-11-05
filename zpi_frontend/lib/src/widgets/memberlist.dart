@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
 class MemberList extends StatefulWidget {
 
-  final List<dynamic> members;
+  final List<User> members;
   final String groupname;
-  final Function(String) onRemoveMember;
+  final Function(User) onRemoveMember;
 
   MemberList({required this.members, required this.groupname, required this.onRemoveMember});
 
@@ -14,7 +15,7 @@ class MemberList extends StatefulWidget {
 }
 
 class _MemberListState extends State<MemberList> {
-  List<dynamic> localMembers = [];
+  List<User> localMembers = [];
 
   @override
   void initState() {
@@ -31,22 +32,6 @@ class _MemberListState extends State<MemberList> {
       });
     }
   }
-
-  // Future<void> removeMember(String memberName) async{
-  //   print('removing $memberName from ${widget.groupname}');
-  //   bool success = await ApiService.removeMemberfromGroup(memberName, widget.groupname);
-
-  //   if(success) {
-  //     setState(() {
-  //       members = members.where((member) => member['username'] != memberName).toList();
-  //     });
-  //     print('User $memberName removed successfully');
-  //   }else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Failed to remove member')),
-  //     );
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +51,7 @@ class _MemberListState extends State<MemberList> {
               leading: CircleAvatar(
                 backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
               ),
-              title: Text(member),
+              title: Text(member.username),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
                 child: Text("Usuń członka")
