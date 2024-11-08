@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPreferences {
   static const _usernameKey = 'username';
+  static const _activeGroupKey = 'username';
 
   // Save username in SharedPreferences
   static Future<void> saveUserName(String username) async {

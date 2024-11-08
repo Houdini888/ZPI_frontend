@@ -57,7 +57,7 @@ class _MemberListState extends State<MemberList> {
                       member.username,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  SizedBox(width: 40,),
+                  SizedBox(width: 10,),
                   Text(
                     member.instrument,
                     style: TextStyle(color: Colors.brown),
