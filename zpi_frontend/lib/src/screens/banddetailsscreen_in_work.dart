@@ -1,8 +1,10 @@
 import 'package:zpi_frontend/src/models/group.dart';
-import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+
+import '../models/user.dart';
+import '../widgets/bands_files_list.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -115,6 +117,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       child: Text("Choose the song"),
                     ),
                     const SizedBox(height: 24),
+
+                    // Member List Section
                     SizedBox(
                       height: 500,
                       child: MemberList(
@@ -128,7 +132,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
             ),
             // Second Tab: Empty
-            const Center(child: Text("Empty Tab 1")),
+            BandsFilesList(group: widget.group),
             // Third Tab: Empty
             const Center(child: Text("Empty Tab 2")),
           ],

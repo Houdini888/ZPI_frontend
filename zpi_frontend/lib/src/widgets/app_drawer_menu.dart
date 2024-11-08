@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/screens/library_main.dart';
 import 'package:zpi_frontend/src/screens/bandlistscreen.dart';
 import 'package:zpi_frontend/src/screens/setlists_main.dart';
+import 'package:zpi_frontend/src/services/user_data.dart';
+
+import '../../login.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -36,13 +39,38 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Andrzej123',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                FutureBuilder<String?>(
+                  future: UserPreferences.getUserName(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        "Loading...",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      return Text(
+                        snapshot.data!,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        "No username",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -54,6 +82,7 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Home'),
             onTap: () {
               Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pop(context);
             },
           ),
           ListTile(
@@ -92,9 +121,10 @@ class _AppDrawerState extends State<AppDrawer> {
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Logout'),
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-              // Add logout functionality
+            onTap: () async {
+              await UserPreferences.clearUserName(); // Clear the stored username
+              Navigator.popUntil(context, (route) => route.isFirst); // Close the drawer
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen())); // Go to login
             },
           ),
         ],
