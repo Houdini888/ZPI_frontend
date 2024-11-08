@@ -51,7 +51,19 @@ class _MemberListState extends State<MemberList> {
               leading: CircleAvatar(
                 backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
               ),
-              title: Text(member.username),
+              title: Row(
+                children: [
+                  Text(
+                      member.username,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  SizedBox(width: 40,),
+                  Text(
+                    member.instrument,
+                    style: TextStyle(color: Colors.brown),
+                  ),
+                ],
+  ),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
                 child: Text("Usuń członka")
@@ -65,15 +77,50 @@ class _MemberListState extends State<MemberList> {
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              //TODO: Adding members
-              onPressed: (){}, 
-              child: Text("Dodaj członków")),
+              onPressed: (){
+                fetchStringFromBackend(context);
+              }, 
+              child: Text("Generuj token")),
           );
         }
       }
     ),
   );
 }
+
+Future<void> fetchStringFromBackend(BuildContext context) async {
+    try {
+      String receivedString = await ApiService.updateAndGetTokenForGroup(widget.groupname, 'test1');
+      showStringDialog(context, receivedString);
+    } 
+    catch (error) {
+      // showErrorDialog(context, error.toString());
+      print(error);
+    }
+  }
+
+  void showStringDialog(BuildContext context, String data) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Token'),
+          content: Text(data), // Show the received string
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
 }
 
 
