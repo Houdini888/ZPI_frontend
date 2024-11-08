@@ -6,7 +6,7 @@ class WebSocketService {
   late WebSocketChannel channel;
 
   void connect(String username, String groupname) {
-    final String url = 'ws://localhost:8080/message?username=$username&groupname=$groupname';
+    final String url = 'ws://localhost:8080/message?username=$username&group=$groupname';
     channel = WebSocketChannel.connect(Uri.parse(url));
 
     channel.stream.listen((message) {
@@ -27,7 +27,7 @@ class WebSocketService {
 
   void disconnect() {
     if (channel != null) {
-      channel.sink.close(status.goingAway);
+      channel.sink.close(status.normalClosure);
       print('Disconnected from WebSocket');
     }
   }
