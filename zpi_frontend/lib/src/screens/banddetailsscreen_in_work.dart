@@ -1,6 +1,6 @@
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/user.dart';
-import 'package:zpi_frontend/src/widgets/memberlist.dart';
+import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
@@ -111,10 +111,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const ElevatedButton(
-                      onPressed: null,
-                      child: Text("Choose the song"),
-                    ),
                     const SizedBox(height: 24),
                     SizedBox(
                       height: 500,

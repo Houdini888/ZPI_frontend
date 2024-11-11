@@ -6,9 +6,7 @@ import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
 import 'package:zpi_frontend/src/services/websocketservice.dart';
 
 void main() {
-
   runApp(const MyApp());
-
 }
 
 class MyApp extends StatelessWidget {
