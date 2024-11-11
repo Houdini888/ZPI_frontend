@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/models/group.dart';
+
+import '../models/file_data.dart';
 
 class ApiService {
   static const String baseUrl = "http://192.168.224.177:8080";
@@ -21,6 +24,20 @@ class ApiService {
   //     throw Exception('Failed to load groups');
   //   }
   // }
+
+  Future<List<FileData>> fetchAllFiles(String username, String group) async {
+    final url = Uri.parse('$baseUrl/getAllFiles?username=$username&group=$group');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse.map((file) => FileData.fromJson(file)).toList();
+    } else {
+      throw Exception('Failed to load files');
+    }
+  }
+
 
   Future<Group> fetchGroupByName() async {
     final response =
@@ -106,6 +123,43 @@ class ApiService {
     }else {
       print("Failed to receive token: ${response.reasonPhrase}");
       return "";
+    }
+  }
+
+  Future<File?> downloadFile({
+    required String username,
+    required String group,
+    required String piece,
+    required String instrument,
+  }) async {
+    try {
+      // Construct the URI with the required parameters
+      final url = Uri.parse(
+        '$baseUrl/download?username=$username&group=$group&piece=$piece&instrument=$instrument',
+      );
+
+      // Send the GET request
+      final response = await http.get(url);
+
+      // Check for successful response
+      if (response.statusCode == 200) {
+        // Retrieve the temporary directory of the device to save the file
+        final directory = await getTemporaryDirectory();
+        final filePath = '${directory.path}/$piece-$instrument.pdf';
+
+        // Write the response body to a file
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        print('File downloaded to: $filePath');
+        return file;
+      } else {
+        print('Failed to download file: ${response.reasonPhrase}');
+        return null;
+      }
+    } catch (e) {
+      print('Error downloading file: $e');
+      return null;
     }
   }
 

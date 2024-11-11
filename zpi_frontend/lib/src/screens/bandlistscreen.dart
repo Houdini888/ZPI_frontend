@@ -53,7 +53,7 @@ class _BandListScreenState extends State<BandListScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  GroupDetailsScreen(group: group)));
+                                  GroupDetailsScreen(group: group, admin: true,)));
                     },
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

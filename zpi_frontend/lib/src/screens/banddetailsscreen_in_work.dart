@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
 import '../models/user.dart';
-import '../widgets/bands_files_list.dart';
+import '../widgets/bands_files_list_admin.dart';
+import '../widgets/bands_files_list_member.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
+  final bool admin;
 
-  const GroupDetailsScreen({super.key, required this.group});
+  const GroupDetailsScreen({super.key, required this.group, required this.admin});
 
   @override
   _GroupDetailsScreenState createState() => _GroupDetailsScreenState();
@@ -133,7 +135,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
             ),
             // Second Tab: Empty
-            BandsFilesList(group: widget.group),
+            BandsFilesListAdmin(group: widget.group),
             // Third Tab: Empty
             const Center(child: Text("Empty Tab 2")),
           ],
