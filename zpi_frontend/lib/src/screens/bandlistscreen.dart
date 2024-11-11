@@ -3,6 +3,8 @@ import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/screens/banddetailsscreen_in_work.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
+import '../widgets/app_drawer_menu.dart';
+
 class BandListScreen extends StatefulWidget {
   @override
   _BandListScreenState createState() => _BandListScreenState();
@@ -27,9 +29,11 @@ class _BandListScreenState extends State<BandListScreen> {
               icon: new Icon(Icons.menu),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
+
           ),
           title: Text('Bands List'),
         ),
+        drawer: AppDrawer(),
         body: FutureBuilder(
             future: _group,
             builder: (context, snapshot) {
@@ -49,7 +53,7 @@ class _BandListScreenState extends State<BandListScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  GroupDetailsScreen(group: group)));
+                                  GroupDetailsScreen(group: group, admin: true,)));
                     },
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

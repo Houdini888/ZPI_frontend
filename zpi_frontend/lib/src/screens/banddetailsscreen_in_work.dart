@@ -1,13 +1,19 @@
 import 'package:zpi_frontend/src/models/group.dart';
+import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
+import '../models/user.dart';
+import '../widgets/bands_files_list_admin.dart';
+import '../widgets/bands_files_list_member.dart';
+
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
+  final bool admin;
 
-  const GroupDetailsScreen({super.key, required this.group});
+  const GroupDetailsScreen({super.key, required this.group, required this.admin});
 
   @override
   _GroupDetailsScreenState createState() => _GroupDetailsScreenState();
@@ -111,7 +117,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    const ElevatedButton(
+                      onPressed: null,
+                      child: Text("Choose the song"),
+                    ),
                     const SizedBox(height: 24),
+
+                    // Member List Section
                     SizedBox(
                       height: 500,
                       child: MemberList(
@@ -125,7 +137,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
             ),
             // Second Tab: Empty
-            const Center(child: Text("Empty Tab 1")),
+            BandsFilesListAdmin(group: widget.group),
             // Third Tab: Empty
             const Center(child: Text("Empty Tab 2")),
           ],
