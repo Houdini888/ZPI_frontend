@@ -10,8 +10,8 @@ import '../models/file_data.dart';
 import '../models/group_list.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.224.177:8080";
-  static const String secUrl = "https://192.168.224.177:8443";
+  static const String baseUrl = "http://localhost:8080";
+  static const String secUrl = "https://localhost:8443";
 
   // for testing purposes only
   final String testGroup = 'testGroup';
@@ -200,6 +200,18 @@ class ApiService {
     } catch (e) {
       print('Error downloading file: $e');
       return null;
+    }
+  }
+
+  Future<List<String>> getAllInstrumentsFromGroup(String groupname) async {
+    final response =
+        await http.post(Uri.parse('$baseUrl/getAllInstruments?group=$groupname'));
+    if (response.statusCode == 200) {
+      List<String> jsonResponse = List<String>.from(json.decode(response.body));
+      print(jsonResponse);
+      return jsonResponse;
+    } else {
+      throw Exception('Failed to load list of instruments in group');
     }
   }
 
