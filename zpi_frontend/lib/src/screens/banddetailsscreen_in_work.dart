@@ -10,8 +10,13 @@ import '../widgets/memberlist_admin.dart';
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
   final bool admin;
+  final String adminName;
 
-  const GroupDetailsScreen({super.key, required this.group, required this.admin});
+  const GroupDetailsScreen(
+      {super.key,
+      required this.group,
+      required this.admin,
+      required this.adminName});
 
   @override
   _GroupDetailsScreenState createState() => _GroupDetailsScreenState();
@@ -41,7 +46,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -60,7 +64,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           flexibleSpace: Stack(
             children: [
               Image.asset(
-              'assets/images/band_pf.jpg',
+                'assets/images/band_pf.jpg',
                 fit: BoxFit.cover,
                 width: double.infinity,
               ),
@@ -76,11 +80,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   ),
                 ),
               ),
-
             ],
-
           ),
-            bottom: PreferredSize(
+          bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48.0),
             child: Container(
               color: Colors.black87, // Background color for the TabBar
@@ -126,23 +128,24 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       height: 500,
                       child: widget.admin
                           ? MemberListAdmin(
-                        members: users,
-                        groupname: widget.group.groupName,
-                        onRemoveMember: removeMember,
-                      )
+                              members: users,
+                              groupname: widget.group.groupName,
+                              onRemoveMember: removeMember,
+                              admin: widget.adminName,
+                            )
                           : MemberListUser(
-                        members: users,
-                        groupname: widget.group.groupName,
-                        onRemoveMember: removeMember,
-                      ),
+                              members: users,
+                              groupname: widget.group.groupName,
+                              onRemoveMember: removeMember,
+                              admin: widget.adminName),
                     ),
                   ],
                 ),
               ),
             ),
-            widget.admin?
-            BandsFilesListAdmin(group: widget.group)
-            :BandsFilesListMember(group: widget.group),
+            widget.admin
+                ? BandsFilesListAdmin(group: widget.group)
+                : BandsFilesListMember(group: widget.group),
             // Third Tab: Empty
             const Center(child: Text("Empty Tab 2")),
           ],

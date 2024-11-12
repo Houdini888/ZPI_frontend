@@ -10,8 +10,9 @@ import '../models/file_data.dart';
 import '../models/group_list.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:8080";
-  static const String secUrl = "https://localhost:8443";
+  static const String baseUrl = "http://192.168.224.177:8080";
+  static const String authUrl = "http://192.168.224.177:8081";
+  static const String secUrl = "https://192.168.224.177:8443";
 
   // for testing purposes only
   final String testGroup = 'testGroup';
@@ -95,6 +96,22 @@ class ApiService {
     } catch (e) {
       print("Error creating group: $e");
       return false;
+    }
+  }
+
+  Future<String> auth() async {
+    try {
+      final response = await http.get(Uri.parse('$authUrl/auth/oauth'));
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        print("Failed authorization: ${response.reasonPhrase}");
+        return "";
+      }
+    } catch (e) {
+      print("Error creating group: $e");
+      return "";
     }
   }
 

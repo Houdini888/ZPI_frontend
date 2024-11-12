@@ -9,9 +9,10 @@ class MemberListUser extends StatefulWidget {
 
   final List<User> members;
   final String groupname;
+  final String admin;
   final Function(User) onRemoveMember;
 
-  MemberListUser({required this.members, required this.groupname, required this.onRemoveMember});
+  MemberListUser({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
 
   @override
   _MemberListUserState createState() => _MemberListUserState();
@@ -59,7 +60,7 @@ class _MemberListUserState extends State<MemberListUser> {
                 children: [
                   Text(
                       member.username,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    style: member.username == widget.admin?TextStyle(fontWeight: FontWeight.bold, color: Colors.amber): TextStyle(fontWeight: FontWeight.bold),
                     ),
                   SizedBox(width: 10,),
                   Text(
