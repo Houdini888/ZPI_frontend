@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
-class MemberList extends StatefulWidget {
+class MemberListAdmin extends StatefulWidget {
 
   final List<User> members;
   final String groupname;
   final Function(User) onRemoveMember;
 
-  MemberList({required this.members, required this.groupname, required this.onRemoveMember});
+  MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember});
 
   @override
-  _MemberListState createState() => _MemberListState();
+  _MemberListAdminState createState() => _MemberListAdminState();
 }
 
-class _MemberListState extends State<MemberList> {
+class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
 
   @override
@@ -24,7 +24,7 @@ class _MemberListState extends State<MemberList> {
   }
 
   @override
-  void didUpdateWidget(MemberList oldWidget) {
+  void didUpdateWidget(MemberListAdmin oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.members != widget.members) {
       setState(() {
@@ -105,7 +105,7 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Token'),
-          content: Text(data), // Show the received string
+          content: SelectableText(data), // Show the received string
           actions: [
             TextButton(
               onPressed: () {

@@ -68,7 +68,7 @@ class _BandsFilesListMemberState extends State<BandsFilesListMember> {
     onTap: () {
       _savePdf(doc.piece,doc.instrument);
     },
-    title: Text(doc.piece),
+    title: Text(doc.piece+' - '+ doc.instrument),
     leading: const Icon(
       Icons.picture_as_pdf,
       color: Colors.red,

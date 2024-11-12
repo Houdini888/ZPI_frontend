@@ -1,13 +1,11 @@
 import 'package:zpi_frontend/src/models/group.dart';
-import 'package:zpi_frontend/src/widgets/memberlist.dart';
 import 'package:zpi_frontend/src/models/user.dart';
+import 'package:zpi_frontend/src/widgets/bands_files_list_member.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
-
-import '../models/user.dart';
 import '../widgets/bands_files_list_admin.dart';
-import '../widgets/bands_files_list_member.dart';
+import '../widgets/memberlist_admin.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -126,7 +124,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     // Member List Section
                     SizedBox(
                       height: 500,
-                      child: MemberList(
+                      child: widget.admin
+                          ? MemberListAdmin(
+                        members: users,
+                        groupname: widget.group.groupName,
+                        onRemoveMember: removeMember,
+                      )
+                          : MemberListUser(
                         members: users,
                         groupname: widget.group.groupName,
                         onRemoveMember: removeMember,
@@ -136,8 +140,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ),
               ),
             ),
-            // Second Tab: Empty
-            BandsFilesListAdmin(group: widget.group),
+            widget.admin?
+            BandsFilesListAdmin(group: widget.group)
+            :BandsFilesListMember(group: widget.group),
             // Third Tab: Empty
             const Center(child: Text("Empty Tab 2")),
           ],

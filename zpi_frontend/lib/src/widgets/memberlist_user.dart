@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 
-class MemberList extends StatefulWidget {
+class MemberListUser extends StatefulWidget {
 
   final List<User> members;
   final String groupname;
   final Function(User) onRemoveMember;
 
-  MemberList({required this.members, required this.groupname, required this.onRemoveMember});
+  MemberListUser({required this.members, required this.groupname, required this.onRemoveMember});
 
   @override
-  _MemberListState createState() => _MemberListState();
+  _MemberListUserState createState() => _MemberListUserState();
 }
 
-class _MemberListState extends State<MemberList> {
+class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
 
   @override
@@ -24,7 +24,7 @@ class _MemberListState extends State<MemberList> {
   }
 
   @override
-  void didUpdateWidget(MemberList oldWidget) {
+  void didUpdateWidget(MemberListUser oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.members != widget.members) {
       setState(() {

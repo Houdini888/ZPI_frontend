@@ -7,6 +7,7 @@ import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 
 import '../models/file_data.dart';
+import '../models/group_list.dart';
 
 class ApiService {
   static const String baseUrl = "http://192.168.224.177:8080";
@@ -15,18 +16,60 @@ class ApiService {
   // for testing purposes only
   final String testGroup = 'testGroup';
 
-  //later version
-  // Future<Group> fetchGroupByName(String groupName) async {
-  //   final response = await http.get(Uri.parse('$baseUrl/getGroups?group=$groupName'));
-  //   if (response.statusCode == 200) {
-  //     return Group.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to load groups');
-  //   }
-  // }
+  Future<Group> fetchGroupByName(String groupName) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/getGroup?group=$groupName'));
+    if (response.statusCode == 200) {
+      return Group.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load group');
+    }
+  }
+
+  Future<bool> joinGroup({
+    required String username,
+    required String token,
+    required String instrument,
+  }) async {
+    final url = Uri.parse('$baseUrl/joinGroup');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'username': username,
+        'token': token,
+        'instrument': instrument,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Successfully joined the group
+      return true;
+    } else {
+      // Print the error for debugging
+      print("Failed to join group: ${response.statusCode} - ${response.body}");
+      return false;
+    }
+  }
+
+  Future<List<GroupList>> fetchAllGroups(String username) async {
+    final url = Uri.parse('$baseUrl/getAllGroups?username=$username');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse.map((group) => GroupList.fromJson(group)).toList();
+    } else {
+      throw Exception('Failed to load groups');
+    }
+  }
 
   Future<List<FileData>> fetchAllFiles(String username, String group) async {
-    final url = Uri.parse('$baseUrl/getAllFiles?username=$username&group=$group');
+    final url =
+        Uri.parse('$baseUrl/getAllFiles?username=$username&group=$group');
 
     final response = await http.get(url);
 
@@ -38,17 +81,6 @@ class ApiService {
     }
   }
 
-
-  Future<Group> fetchGroupByName() async {
-    final response =
-        await http.post(Uri.parse('$baseUrl/getGroup?group=testGroup'));
-    if (response.statusCode == 200) {
-      return Group.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load groups');
-    }
-  }
-
   Future<List<User>> fetchUsersInGroup(int groupId) async {
     final response =
         await http.post(Uri.parse('$baseUrl/getUsersInGroup?groupId=$groupId'));
@@ -57,6 +89,31 @@ class ApiService {
       return jsonResponse.map((user) => User.fromJson(user)).toList();
     } else {
       throw Exception('Failed to load users for group');
+    }
+  }
+
+  Future<bool> createGroup(
+      {required String group, required String owner}) async {
+    try {
+      final url = Uri.parse('$baseUrl/createGroup');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'group': group,
+          'owner': owner,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Failed to create group: ${response.reasonPhrase}");
+        return false;
+      }
+    } catch (e) {
+      print("Error creating group: $e");
+      return false;
     }
   }
 
@@ -115,12 +172,14 @@ class ApiService {
     }
   }
 
-  static Future<String> updateAndGetTokenForGroup(String groupname, String username) async{
-     final response = await http.post(Uri.parse('$baseUrl/updateToken?group=$groupname&username=$username'));
+  static Future<String> updateAndGetTokenForGroup(
+      String groupname, String username) async {
+    final response = await http.post(
+        Uri.parse('$baseUrl/updateToken?group=$groupname&username=$username'));
 
-     if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
       return response.body;
-    }else {
+    } else {
       print("Failed to receive token: ${response.reasonPhrase}");
       return "";
     }
@@ -163,17 +222,15 @@ class ApiService {
     }
   }
 
-  // static Future<bool> addMemberToGroup(String username, String groupname, String instrument) async{
-  //   final response = await http.post(Uri.parse('$baseUrl/addToGroup?username=$username&group=$groupname&instrument=$instrument'));
+// static Future<bool> addMemberToGroup(String username, String groupname, String instrument) async{
+//   final response = await http.post(Uri.parse('$baseUrl/addToGroup?username=$username&group=$groupname&instrument=$instrument'));
 
-  //   if (response.statusCode == 200) {
-  //     return true;
-  //   }else {
-  //     print("Failed to add member: ${response.reasonPhrase}");
-  //     return false;
-  //   }
+//   if (response.statusCode == 200) {
+//     return true;
+//   }else {
+//     print("Failed to add member: ${response.reasonPhrase}");
+//     return false;
+//   }
 
-  // }
-
-
+// }
 }

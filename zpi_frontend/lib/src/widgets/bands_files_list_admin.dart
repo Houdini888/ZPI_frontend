@@ -1,61 +1,32 @@
 import 'dart:io';
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:zpi_frontend/src/models/file_data.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/user_data.dart';
-import 'package:zpi_frontend/src/services/apiservice.dart';
 
 class BandsFilesListAdmin extends StatefulWidget {
   const BandsFilesListAdmin({super.key, required this.group});
-
   final Group group;
 
   @override
   _BandsFilesListAdminState createState() => _BandsFilesListAdminState();
 }
 
-class MenuItem {
-  final int id;
-  final String label;
-  final IconData icon;
-
-  MenuItem(this.id, this.label, this.icon);
-}
-
 class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
   late TextEditingController instrumentTextController;
   late TextEditingController pieceTextController;
   late String user;
-  final TextEditingController menuController = TextEditingController();
-  MenuItem? selectedMenu;
   File? selectedFile;
   late Future<List<FileData>> _pdfFiles = Future.value([]);
-
-
-
-  List<MenuItem> menuItems = [
-  MenuItem(1, 'Home', Icons.home),
-  MenuItem(2, 'Profile', Icons.person),
-  MenuItem(3, 'Settings', Icons.settings),
-  MenuItem(4, 'Favorites', Icons.favorite),
-  MenuItem(5, 'Notifications', Icons.notifications),
-  MenuItem(6, 'Messages', Icons.message),
-  MenuItem(7, 'Explore', Icons.explore),
-  MenuItem(8, 'Search', Icons.search),
-  MenuItem(9, 'Chat', Icons.chat),
-  MenuItem(10, 'Calendar', Icons.calendar_today),
-  ];
 
   @override
   void initState() {
     super.initState();
     _loadAsync();
-
     instrumentTextController = TextEditingController();
     pieceTextController = TextEditingController();
   }
@@ -63,95 +34,109 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Your existing FutureBuilder and other widgets here
-          FutureBuilder<List<FileData>?>(
-            future: _pdfFiles,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error loading files'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No files available'));
-              } else {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final pdfFile = snapshot.data![index];
-                    return Slidable(
-                      key: Key(pdfFile.piece),
-                      child: buildPdfTile(pdfFile),
-                    );
-                  },
+      body: FutureBuilder<List<FileData>>(
+        future: _pdfFiles,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error loading files'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No files available'));
+          } else {
+            // Grouping the data by piece name with instruments list
+            final groupedData = _groupByPiece(snapshot.data!);
+            return ListView.builder(
+              itemCount: groupedData.length,
+              itemBuilder: (context, index) {
+                final pieceEntry = groupedData[index];
+                return Slidable(
+                  key: Key(pieceEntry['piece']),
+                  child: buildPdfTile(pieceEntry['piece'], pieceEntry['instruments']),
                 );
-              }
-            },
-          ),
-        ],
+              },
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _uploadFileToServer,
-        child: Icon(Icons.add), // Use an icon or text
-        tooltip: 'Add File', // Optional tooltip for accessibility
+        child: Icon(Icons.add),
+        tooltip: 'Add File',
       ),
     );
   }
 
-  Widget buildPdfTile(FileData doc) => ListTile(
-    onTap: () {
-      _savePdf(doc.piece, doc.instrument);
-    },
-    title: Text(doc.piece),
-    leading: const Icon(
-      Icons.picture_as_pdf,
-      color: Colors.red,
-      size: 32.0,
-    ),
-  );
+  // Method to group FileData by piece name, retaining a list of instruments
+  List<Map<String, dynamic>> _groupByPiece(List<FileData> files) {
+    Map<String, List<String>> groupedMap = {};
+
+    for (var file in files) {
+      // Add instrument to the list for each piece
+      if (groupedMap.containsKey(file.piece)) {
+        groupedMap[file.piece]!.add(file.instrument);
+      } else {
+        groupedMap[file.piece] = [file.instrument];
+      }
+    }
+
+    // Convert the map into a list of maps for easy access in the UI
+    return groupedMap.entries.map((entry) {
+      return {
+        'piece': entry.key,
+        'instruments': entry.value,
+      };
+    }).toList();
+  }
+
+  // Modified buildPdfTile to show all instruments as children of the expandable tile
+  Widget buildPdfTile(String piece, List<String> instruments) {
+    return Theme(
+      data: ThemeData().copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        title: Text(piece),
+        leading: const Icon(Icons.music_note_outlined, color: Colors.red, size: 32.0),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0), // Adjust padding
+        children: instruments.map((instrument) {
+          return ListTile(
+            leading: const Icon(Icons.picture_as_pdf_rounded),
+            title: Text(instrument),
+            onTap: () {
+              _savePdf(piece, instrument);
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   Future<void> _uploadFileToServer() async {
     final result = await openDialog();
-    if (result != null) {
-      if (result['file'] != null) {
-        // Show Snackbar indicating file upload has started
-        final snackBar = SnackBar(content: Text('File being added...'));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    if (result != null && result['file'] != null) {
+      final snackBar = SnackBar(content: Text('File being added...'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-        // Upload the file
-        final success = await ApiService.uploadFile(
-          file: result['file'] as File,
-          memberName: user,
-          groupName: widget.group.groupName,
-          piece: result['piece'] as String,
-          instrument: result['instrument'] as String,
-          fileType: "pdf",
-        );
+      final success = await ApiService.uploadFile(
+        file: result['file'] as File,
+        memberName: user,
+        groupName: widget.group.groupName,
+        piece: result['piece'] as String,
+        instrument: result['instrument'] as String,
+        fileType: "pdf",
+      );
 
-        // Dismiss the Snackbar after a response
-        ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Hide the current Snackbar
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        if (success) {
-          print("File uploaded successfully");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('File added successfully!')),
-          );
-          // Reload the list of files after successful upload
-          await _loadAsync(); // Refresh the list
-        } else {
-          print("Failed to upload file");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add file. Please try again.')),
-          );
-        }
+      if (success) {
+        print("File uploaded successfully");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File added successfully!')));
+        await _loadAsync(); // Refresh the list
       } else {
-        print("No file selected for upload");
+        print("Failed to upload file");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add file. Please try again.')));
       }
+    } else {
+      print("No file selected for upload");
     }
   }
 
@@ -175,16 +160,11 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
                   controller: instrumentTextController,
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    await _pickAndSavePdf(setState);
-                  },
+                  onPressed: () async { await _pickAndSavePdf(setState); },
                   child: Text('Pick File'),
                 ),
                 if (selectedFile != null)
-                  Text(
-                    'Selected file: ${selectedFile!.path.split('/').last}',
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  Text('Selected file: ${selectedFile!.path.split('/').last}', style: TextStyle(color: Colors.grey)),
               ],
             );
           },
@@ -218,7 +198,6 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
     );
 
     if (result != null && result.files.single.path != null) {
-      // Update the selected file and trigger dialog UI rebuild
       setState(() {
         selectedFile = File(result.files.single.path!);
       });
@@ -233,17 +212,13 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
       // Check if the file already exists
       final fileExists = await File(filePath).exists();
       if (fileExists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('File already downloaded: $filePath')),
-        );
-        return; // Exit if the file already exists
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File already downloaded: $filePath')));
+        return;
       }
 
-      // Show loading indicator
       final loadingSnackBar = SnackBar(content: Text('Saving file...'));
       ScaffoldMessenger.of(context).showSnackBar(loadingSnackBar);
 
-      // Call downloadFile to get the PDF file
       final file = await ApiService().downloadFile(
         username: user,
         group: widget.group.groupName,
@@ -251,27 +226,19 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
         instrument: instrument,
       );
 
-      if (file != null) {
-        // Save the file to the device's storage
-        final savedFile = await file.copy(filePath);
-        print('File saved to: ${savedFile.path}');
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        // Dismiss loading Snackbar and show success message
-        ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Hide loading snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('File saved to: ${savedFile.path}')),
-        );
+      if (file != null) {
+        final savedFile = await file.copy(filePath);
+
+        print('File saved to: ${savedFile.path}');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File saved to ${savedFile.path}')));
       } else {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Hide loading snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to download file')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to download file')));
       }
     } catch (e) {
       print('Error saving file: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving file: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving file')));
     }
   }
 }

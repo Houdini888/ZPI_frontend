@@ -5,13 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="merged + login test">
-      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/models/file_data.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/models/group_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +67,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "bands",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/woj-7/StudioProjects/ZPI_frontend/zpi_frontend/lib/src/widgets",
     "show.migrate.to.gradle.popup": "false"
