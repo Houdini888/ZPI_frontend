@@ -95,7 +95,7 @@ class _BandListScreenState extends State<BandListScreen> {
                 bool success = await ApiService().joinGroup(
                   username: user,
                   token: groupCode,
-                  instrument: 'bass',
+                  instrument: '',
                 );
                 if (success) {
                   Navigator.pop(context); // Close the dialog
