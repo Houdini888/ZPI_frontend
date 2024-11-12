@@ -22,6 +22,7 @@ class MemberListAdmin extends StatefulWidget {
 class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
+  late List<String> _allInstruments = [];
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
@@ -33,6 +34,16 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     super.initState();
     _loadAsync();
     localMembers = widget.members;
+    _getAllInstruments();
+  }
+
+  Future<void> _getAllInstruments() async{
+    try {
+      _allInstruments = await ApiService().getAllInstrumentsFromGroup(widget.groupname);
+      setState(() {});
+    } catch (e) {
+      print('Error fetching instruments: $e');
+    }
   }
 
   @override
@@ -70,10 +81,20 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   SizedBox(width: 10,),
-                  Text(
-                    member.instrument,
-                    style: TextStyle(color: Colors.brown),
-                  ),
+                  DropdownButton(
+                    value: member.instrument,
+                    items: _allInstruments.map((String instrument) {
+                      return DropdownMenuItem<String>(
+                        value: instrument,
+                        child: Text(instrument),
+                      );
+                    }).toList(),
+                    onChanged: (String? newInstrument) {
+                      changeUserInstrument('test1', widget.groupname, member.username, newInstrument);
+                      setState(() {
+                      });
+                    },
+                    )
                 ],
   ),
               trailing: ElevatedButton(
@@ -160,7 +181,22 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
     );
   }
 
+  Future<void> changeUserInstrument(String admin, String groupname, String member, String? instrument) async {
 
+    if(instrument == null){
+      
+    }
+    //TODO better null handling here (instrument!)
+    var response = await ApiService().updateUserInstrument(admin, groupname, member, instrument!);
+
+    if(response){
+      setState(() {
+      
+      });
+    }else{
+      print('Unable to change instrument!');
+    }
+  }
 
 
 

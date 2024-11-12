@@ -208,10 +208,20 @@ class ApiService {
         await http.post(Uri.parse('$baseUrl/getAllInstruments?group=$groupname'));
     if (response.statusCode == 200) {
       List<String> jsonResponse = List<String>.from(json.decode(response.body));
-      print(jsonResponse);
       return jsonResponse;
     } else {
       throw Exception('Failed to load list of instruments in group');
+    }
+  }
+
+  Future<bool> updateUserInstrument(String admin, String groupname, String member, String instrument) async {
+    final response =
+        await http.post(Uri.parse('$baseUrl/updateUserInstrument?username=$admin&group=$groupname&musician=$member&instrument=$instrument'));
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to update instrument: ${response.reasonPhrase}");
+      return false;
     }
   }
 

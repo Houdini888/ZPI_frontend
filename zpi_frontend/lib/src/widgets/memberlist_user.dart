@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+import 'package:zpi_frontend/src/widgets/instrument_dropdown.dart';
 
 class MemberListUser extends StatefulWidget {
 
@@ -17,8 +20,10 @@ class MemberListUser extends StatefulWidget {
 class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
 
+  
+
   @override
-  void initState() {
+  void initState(){
     super.initState();
     localMembers = widget.members;
   }
@@ -56,13 +61,13 @@ class _MemberListUserState extends State<MemberListUser> {
                       member.username,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  SizedBox(width: 40,),
+                  SizedBox(width: 10,),
                   Text(
                     member.instrument,
-                    style: TextStyle(color: Colors.brown),
-                  ),
+                  )
+
                 ],
-  ),
+              ),
               onTap: () {}
             ),
             Divider(),
@@ -72,38 +77,6 @@ class _MemberListUserState extends State<MemberListUser> {
     ),
   );
 }
-
-Future<void> fetchStringFromBackend(BuildContext context) async {
-    try {
-      String receivedString = await ApiService.updateAndGetTokenForGroup(widget.groupname, 'test1');
-      showStringDialog(context, receivedString);
-    } 
-    catch (error) {
-      // showErrorDialog(context, error.toString());
-      print(error);
-    }
-  }
-
-  void showStringDialog(BuildContext context, String data) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Token'),
-          content: Text(data), // Show the received string
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 
 
 }
