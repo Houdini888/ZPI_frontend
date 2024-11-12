@@ -31,18 +31,7 @@ class ApiService {
     required String token,
     required String instrument,
   }) async {
-    final url = Uri.parse('$baseUrl/joinGroup');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'username': username,
-        'token': token,
-        'instrument': instrument,
-      }),
-    );
+    final response = await http.post(Uri.parse('$baseUrl/joinGroup?username=$username&token=$token&instrument=$instrument'));
 
     if (response.statusCode == 200) {
       // Successfully joined the group
@@ -95,15 +84,7 @@ class ApiService {
   Future<bool> createGroup(
       {required String group, required String owner}) async {
     try {
-      final url = Uri.parse('$baseUrl/createGroup');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'group': group,
-          'owner': owner,
-        }),
-      );
+      final response = await http.post(Uri.parse('$baseUrl/createGroup?group=$group&owner=$owner'));
 
       if (response.statusCode == 200) {
         return true;

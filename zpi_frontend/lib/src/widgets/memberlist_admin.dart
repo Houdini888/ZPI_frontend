@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+
+import '../services/user_data.dart';
 
 class MemberListAdmin extends StatefulWidget {
 
@@ -14,12 +18,20 @@ class MemberListAdmin extends StatefulWidget {
   _MemberListAdminState createState() => _MemberListAdminState();
 }
 
+
 class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
+  late String user;
+
+  Future<void> _loadAsync() async {
+    user = (await UserPreferences.getUserName())!;
+    setState(() {}); // Refresh the UI after retrieving the username
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadAsync();
     localMembers = widget.members;
   }
 
@@ -90,7 +102,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
 
 Future<void> fetchStringFromBackend(BuildContext context) async {
     try {
-      String receivedString = await ApiService.updateAndGetTokenForGroup(widget.groupname, 'test1');
+      String receivedString = await ApiService.updateAndGetTokenForGroup(widget.groupname, user);
       showStringDialog(context, receivedString);
     } 
     catch (error) {
@@ -99,13 +111,42 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
     }
   }
 
+
   void showStringDialog(BuildContext context, String data) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Token'),
-          content: SelectableText(data), // Show the received string
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              bool isCopied = false;
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: SelectableText(data, style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  IconButton(
+                    icon: Icon(isCopied ? Icons.check : Icons.copy, color: isCopied ? Colors.green : null),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: data));
+                      setState(() {
+                        isCopied = true;
+                      });
+
+                      // Show toast instead of snackbar
+                      Fluttertoast.showToast(
+                        msg: 'Token copied to clipboard',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -118,6 +159,8 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
       },
     );
   }
+
+
 
 
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/group_list.dart';
 import 'package:zpi_frontend/src/screens/banddetailsscreen_in_work.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
@@ -23,13 +22,13 @@ class _BandListScreenState extends State<BandListScreen> {
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
-    _groups = ApiService().fetchAllGroups(user);
-    setState(() {});
+    _loadGroups();
   }
 
   Future<void> _loadGroups() async {
-    _groups = ApiService().fetchAllGroups(user);
-    setState(() {});
+    setState(() {
+      _groups = ApiService().fetchAllGroups(user);
+    });
   }
 
   void _showCreateGroupDialog() {
@@ -96,7 +95,7 @@ class _BandListScreenState extends State<BandListScreen> {
                 bool success = await ApiService().joinGroup(
                   username: user,
                   token: groupCode,
-                  instrument: 'j',
+                  instrument: 'bass',
                 );
                 if (success) {
                   Navigator.pop(context); // Close the dialog
@@ -143,51 +142,48 @@ class _BandListScreenState extends State<BandListScreen> {
             return Center(child: Text('No groups found.'));
           } else {
             final groups = snapshot.data!;
-            return ListView.builder(
-              itemCount: groups.length + 1, // Additional item for the button
-              itemBuilder: (context, index) {
-                if (index < groups.length) {
-                  final group = groups[index];
-                  return Card(
-                    color: Colors.grey,
-                    child: InkWell(
-                      onTap: () async {
-                        final selectedGroup = await ApiService().fetchGroupByName(group.groupName);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GroupDetailsScreen(
-                              group: selectedGroup,
-                              admin: user == group.owner,
-                            ),
+            return ListView(
+              children: [
+                // List of groups
+                ...groups.map((group) => Card(
+                  color: Colors.grey,
+                  child: InkWell(
+                    onTap: () async {
+                      final selectedGroup = await ApiService().fetchGroupByName(group.groupName);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GroupDetailsScreen(
+                            group: selectedGroup,
+                            admin: user == group.owner,
                           ),
-                        );
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'assets/images/band_pf.jpg',
-                            fit: BoxFit.fill,
-                          ),
-                          Text(
-                            group.groupName,
-                            style: const TextStyle(fontSize: 30),
-                          ),
-                        ],
-                      ),
+                        ),
+                      );
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/images/band_pf.jpg',
+                          fit: BoxFit.fill,
+                        ),
+                        Text(
+                          group.groupName,
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                      ],
                     ),
-                  );
-                } else {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      onPressed: _showCreateGroupDialog,
-                      child: Text('Create New Group'),
-                    ),
-                  );
-                }
-              },
+                  ),
+                )),
+                // Create New Group button
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: _showCreateGroupDialog,
+                    child: Text('Create New Group'),
+                  ),
+                ),
+              ],
             );
           }
         },
