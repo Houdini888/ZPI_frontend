@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +11,7 @@ import 'package:zpi_frontend/src/services/user_data.dart';
 
 class BandsFilesListAdmin extends StatefulWidget {
   const BandsFilesListAdmin({super.key, required this.group});
+
   final Group group;
 
   @override
@@ -22,6 +24,7 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
   late String user;
   File? selectedFile;
   late Future<List<FileData>> _pdfFiles = Future.value([]);
+  late Future<List<String>> _instruments = Future.value([]);
 
   @override
   void initState() {
@@ -52,7 +55,8 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
                 final pieceEntry = groupedData[index];
                 return Slidable(
                   key: Key(pieceEntry['piece']),
-                  child: buildPdfTile(pieceEntry['piece'], pieceEntry['instruments']),
+                  child: buildPdfTile(
+                      pieceEntry['piece'], pieceEntry['instruments']),
                 );
               },
             );
@@ -95,8 +99,10 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
       data: ThemeData().copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         title: Text(piece),
-        leading: const Icon(Icons.music_note_outlined, color: Colors.red, size: 32.0),
-        childrenPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0), // Adjust padding
+        leading: const Icon(Icons.music_note_outlined,
+            color: Colors.red, size: 32.0),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+        // Adjust padding
         children: instruments.map((instrument) {
           return ListTile(
             leading: const Icon(Icons.picture_as_pdf_rounded),
@@ -129,65 +135,116 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
 
       if (success) {
         print("File uploaded successfully");
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File added successfully!')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('File added successfully!')));
         await _loadAsync(); // Refresh the list
       } else {
         print("Failed to upload file");
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add file. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add file. Please try again.')));
       }
     } else {
       print("No file selected for upload");
     }
   }
 
-  Future<Map<String, dynamic>?> openDialog() => showDialog<Map<String, dynamic>>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Upload File:'),
-      content: SingleChildScrollView(
-        child: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Column(
-              children: [
-                TextField(
-                  autofocus: true,
-                  decoration: InputDecoration(hintText: "Piece Name"),
-                  controller: pieceTextController,
-                ),
-                TextField(
-                  autofocus: true,
-                  decoration: InputDecoration(hintText: "Instrument"),
-                  controller: instrumentTextController,
-                ),
-                ElevatedButton(
-                  onPressed: () async { await _pickAndSavePdf(setState); },
-                  child: Text('Pick File'),
-                ),
-                if (selectedFile != null)
-                  Text('Selected file: ${selectedFile!.path.split('/').last}', style: TextStyle(color: Colors.grey)),
-              ],
-            );
-          },
+  Future<Map<String, dynamic>?> openDialog() =>
+      showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Upload File:'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  children: [
+                    TextField(
+                      autofocus: true,
+                      decoration: InputDecoration(hintText: "Piece Name"),
+                      controller: pieceTextController,
+                    ),
+                    FutureBuilder(
+                        future: _instruments,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error loading instruments'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return TextField(
+                              controller: instrumentTextController,
+                              decoration: InputDecoration(
+                                hintText: "Instrument",
+                                border: UnderlineInputBorder(),
+                              ),
+                            );
+                          } else {
+                            return Autocomplete<String>(
+                              optionsBuilder:
+                                  (TextEditingValue textEditingValue) {
+                                // Filter options based on entered text
+                                return snapshot.data!.where((String option) {
+                                  return option.toLowerCase().contains(
+                                      textEditingValue.text.toLowerCase());
+                                });
+                              },
+                              fieldViewBuilder: (context, controller, focusNode,
+                                  onFieldSubmitted) {
+                                // Assign controller to manage custom and dropdown values
+                                instrumentTextController = controller;
+                                return TextField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  decoration: InputDecoration(
+                                    hintText: "Instrument",
+                                    border: UnderlineInputBorder(),
+                                  ),
+                                );
+                              },
+                              onSelected: (String selection) {
+                                // Update the controller with the selected suggestion
+                                instrumentTextController.text = selection;
+                              },
+                            );
+                          }
+                        }),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _pickAndSavePdf(setState);
+                      },
+                      child: Text('Pick File'),
+                    ),
+                    if (selectedFile != null)
+                      Text(
+                          'Selected file: ${selectedFile!.path.split('/').last}',
+                          style: TextStyle(color: Colors.grey)),
+                  ],
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop({
+                  "piece": pieceTextController.text,
+                  "instrument": instrumentTextController.text,
+                  "file": selectedFile,
+                });
+              },
+              child: Text("Add"),
+            ),
+          ],
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop({
-              "piece": pieceTextController.text,
-              "instrument": instrumentTextController.text,
-              "file": selectedFile,
-            });
-          },
-          child: Text("Add"),
-        ),
-      ],
-    ),
-  );
+      );
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
     _pdfFiles = ApiService().fetchAllFiles(user, widget.group.groupName);
+    _instruments =
+        ApiService().getAllInstrumentsFromGroup(widget.group.groupName);
     setState(() {}); // Refresh the UI after retrieving the username
   }
 
@@ -212,7 +269,8 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
       // Check if the file already exists
       final fileExists = await File(filePath).exists();
       if (fileExists) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File already downloaded: $filePath')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('File already downloaded: $filePath')));
         return;
       }
 
@@ -232,13 +290,16 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
         final savedFile = await file.copy(filePath);
 
         print('File saved to: ${savedFile.path}');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File saved to ${savedFile.path}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('File saved to ${savedFile.path}')));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to download file')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to download file')));
       }
     } catch (e) {
       print('Error saving file: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving file')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error saving file')));
     }
   }
 }

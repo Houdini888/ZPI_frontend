@@ -156,6 +156,7 @@ class _BandListScreenState extends State<BandListScreen> {
                           builder: (context) => GroupDetailsScreen(
                             group: selectedGroup,
                             admin: user == group.owner,
+                            adminName: group.owner,
                           ),
                         ),
                       );

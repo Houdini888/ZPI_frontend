@@ -4,14 +4,26 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="admin/member view + create group/ join group">
+    <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="admin/member view + create group/ join group working">
+      <change beforePath="$PROJECT_DIR$/.idea/ZPI_frontend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ZPI_frontend.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +43,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="bands" />
+        <entry key="$PROJECT_DIR$" value="login_test" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -93,11 +105,20 @@
       <option name="project" value="LOCAL" />
       <updated>1731375581403</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="admin/member view + create group/ join group working">
+      <option name="closed" value="true" />
+      <created>1731421884994</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1731421884994</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="admin/member view + create group/ join group" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin/member view + create group/ join group" />
+    <MESSAGE value="admin/member view + create group/ join group working" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin/member view + create group/ join group working" />
   </component>
 </project>

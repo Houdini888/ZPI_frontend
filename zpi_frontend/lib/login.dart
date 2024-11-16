@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zpi_frontend/src/services/user_data.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,6 +26,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _loginGoogle() async {
+    String _url = "http://192.168.224.177:8081/auth/oauth";
+    if (!await launchUrl(Uri.parse(_url))) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: _login,
               child: Text('Login'),
+            ),
+            ElevatedButton(
+              onPressed: _loginGoogle,
+              child: Text('Google'),
             ),
           ],
         ),
