@@ -214,7 +214,7 @@ class ApiService {
     }
   }
 
-  Future<bool> updateUserInstrument(String admin, String groupname, String member, String instrument) async {
+  static Future<bool> updateUserInstrument(String admin, String groupname, String member, String instrument) async {
     final response =
         await http.post(Uri.parse('$baseUrl/updateUserInstrument?username=$admin&group=$groupname&musician=$member&instrument=$instrument'));
     if (response.statusCode == 200) {

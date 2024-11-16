@@ -1,7 +1,7 @@
 class User {
   final int userID;
   final String username;
-  final String instrument;
+  String instrument;
 
   User({required this.userID, required this.username, required this.instrument});
 

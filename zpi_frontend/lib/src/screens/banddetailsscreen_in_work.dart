@@ -19,11 +19,13 @@ class GroupDetailsScreen extends StatefulWidget {
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
+  late String groupName;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
+    groupName = widget.group.groupName;
   }
 
   Future<void> removeMember(User user) async {
@@ -40,7 +42,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

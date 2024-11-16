@@ -12,7 +12,11 @@ class MemberListAdmin extends StatefulWidget {
   final String groupname;
   final Function(User) onRemoveMember;
 
-  MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember});
+  MemberListAdmin({
+  required this.members, 
+  required this.groupname, 
+  required this.onRemoveMember,
+  });
 
   @override
   _MemberListAdminState createState() => _MemberListAdminState();
@@ -90,7 +94,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       );
                     }).toList(),
                     onChanged: (String? newInstrument) {
-                      changeUserInstrument('test1', widget.groupname, member.username, newInstrument);
+                      changeUserInstrument('test1', widget.groupname, member, newInstrument);
                       setState(() {
                       });
                     },
@@ -181,18 +185,18 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
     );
   }
 
-  Future<void> changeUserInstrument(String admin, String groupname, String member, String? instrument) async {
+  Future<void> changeUserInstrument(String admin, String groupname, User member, String? instrument) async {
 
     if(instrument == null){
       
     }
     //TODO better null handling here (instrument!)
-    var response = await ApiService().updateUserInstrument(admin, groupname, member, instrument!);
+    var response = await ApiService.updateUserInstrument(admin, groupname, member.username, instrument!);
 
     if(response){
       setState(() {
-      
-      });
+        member.instrument = instrument;
+    });
     }else{
       print('Unable to change instrument!');
     }
