@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+import 'package:zpi_frontend/src/services/websocketservice.dart';
+import 'package:zpi_frontend/src/widgets/status_indicator.dart';
 
 import '../services/user_data.dart';
 
@@ -12,7 +14,7 @@ class MemberListAdmin extends StatefulWidget {
   final String groupname;
   final String admin;
   final Function(User) onRemoveMember;
-  
+
   MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
 
   @override
@@ -24,6 +26,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
+  late WebSocketService webSocketService;
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
@@ -95,7 +98,8 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       setState(() {
                       });
                     },
-                    )
+                    ),
+                  StatusIndicator(webSocketService: webSocketService)
                 ],
   ),
               trailing: ElevatedButton(

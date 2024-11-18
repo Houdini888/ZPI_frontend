@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import '../widgets/bands_files_list_admin.dart';
 import '../widgets/memberlist_admin.dart';
+import '../widgets/status_indicator.dart';
+import '../services/websocketservice.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -25,12 +27,14 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
+  final WebSocketService webSocketService = WebSocketService();
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
+    webSocketService.connect('test1', widget.group.groupName);
   }
 
   Future<void> removeMember(User user) async {
@@ -149,7 +153,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
             // Third Tab: Empty
-            const Center(child: Text("Empty Tab 2")),
+            Stack(children: [StatusIndicator(webSocketService: webSocketService)],),
           ],
         ),
       ),
