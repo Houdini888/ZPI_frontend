@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/websocketservice.dart';
-import 'package:zpi_frontend/src/widgets/status_indicator.dart';
+import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
 import '../services/user_data.dart';
 
@@ -14,6 +16,7 @@ class MemberListAdmin extends StatefulWidget {
   final String groupname;
   final String admin;
   final Function(User) onRemoveMember;
+  
 
   MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
 
@@ -24,13 +27,13 @@ class MemberListAdmin extends StatefulWidget {
 
 class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
-  late String user;
+  late String user = '';
   late List<String> _allInstruments = [];
-  late WebSocketService webSocketService;
+  late WebSocketService _webSocketService;
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
-    setState(() {}); // Refresh the UI after retrieving the username
+    setState(() {});
   }
 
   @override
@@ -39,6 +42,11 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     _loadAsync();
     localMembers = widget.members;
     _getAllInstruments();
+    _webSocketService = WebSocketService(
+      username: 'test1',
+      group: widget.groupname,
+    );
+
   }
 
   Future<void> _getAllInstruments() async{
@@ -75,9 +83,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
-              ),
+              leading: StatusCircle(username: member.username, webSocketService: _webSocketService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(
@@ -94,14 +100,14 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       );
                     }).toList(),
                     onChanged: (String? newInstrument) {
-                      changeUserInstrument('test1', widget.groupname, member, newInstrument);
+                      changeUserInstrument(widget.admin, widget.groupname, member, newInstrument);
                       setState(() {
                       });
                     },
                     ),
-                  StatusIndicator(webSocketService: webSocketService)
+                  // StatusIndicator(webSocketService: webSocketService, memberName: user)
                 ],
-  ),
+              ),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
                 child: Text("Usuń członka")

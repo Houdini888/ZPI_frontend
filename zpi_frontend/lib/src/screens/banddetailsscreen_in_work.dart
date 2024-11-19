@@ -4,9 +4,9 @@ import 'package:zpi_frontend/src/widgets/bands_files_list_member.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
 import '../widgets/memberlist_admin.dart';
-import '../widgets/status_indicator.dart';
 import '../services/websocketservice.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -27,14 +27,18 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
-  final WebSocketService webSocketService = WebSocketService();
+  // late WebSocketService2 _webSocketService;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
-    webSocketService.connect('test1', widget.group.groupName);
+    // _webSocketService = WebSocketService2(
+    //   username: "test1",
+    //   group: groupName,
+    //   onStatusUpdate: (_) {}, // No-op for global updates in this example.
+    // );
   }
 
   Future<void> removeMember(User user) async {
@@ -153,7 +157,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
             // Third Tab: Empty
-            Stack(children: [StatusIndicator(webSocketService: webSocketService)],),
+            // Stack(children: [StatusCircle(username: 'test2', webSocketService: _webSocketService)],),
+            Stack(children: [Text("empty")],),
           ],
         ),
       ),

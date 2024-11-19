@@ -1,40 +1,48 @@
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
+import 'dart:convert';
 import 'dart:async';
-
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService {
-  late WebSocketChannel channel;
-  final StreamController<String> _statusController = StreamController<String>.broadcast();
+  late WebSocketChannel _channel;
+  final StreamController<Map<String, bool>> _statusController = StreamController.broadcast();
+  // final Map<String, bool> _statuses = {}; // To track the statuses of users.
+  // Function(Map<String, bool>) onStatusUpdate;
 
-  Stream<String> get statusStream => _statusController.stream;
+  WebSocketService({required String username, required String group}) {
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://localhost:8080/message?username=$username&group=$group'),
+    );
 
-  void connect(String username, String groupname) {
-    final String url = 'ws://localhost:8080/message?username=$username&group=$groupname';
-    channel = WebSocketChannel.connect(Uri.parse(url));
-
-  channel.stream.listen((message) {
-    print('Received: $message');
-    _statusController.add(message);
-  }, onDone: () {
-    print('WebSocket connection closed');
-  }, onError: (error) {
-    print('Error: $error');
-  });
+    // Listen for incoming messages.
+    _channel.stream.listen((message) {
+      print(message);
+      final data = jsonDecode(message);
+      if (data is Map) {
+        _statusController.add({data['Username']: data['Ready']});
+        // _statuses[data['Username']] = data['Ready'];
+        // onStatusUpdate(_statuses);
+      } else if (data is List) {
+        // Update all users' statuses.
+        for (var user in data) {
+          _statusController.add({user['Username']: user['Ready']});
+          // _statuses[user['Username']] = user['Ready'];
+        }
+        // onStatusUpdate(_statuses);
+      }
+    });
   }
+
+  Stream<Map<String, bool>> get statusStream => _statusController.stream;
 
   void sendMessage(String message) {
-    if (channel != null) {
-      channel.sink.add(message);
-      print('Sent: $message');
-    }
+  try {
+    _channel.sink.add(message); // Send plain text directly to WebSocket.
+  } catch (e) {
+    print('Error sending message: $e');
   }
+}
 
-  void disconnect() {
-    if (channel != null) {
-      channel.sink.close(status.normalClosure);
-      print('Disconnected from WebSocket');
-    }
-    _statusController.close();
+  void close() {
+    _channel.sink.close();
   }
 }
