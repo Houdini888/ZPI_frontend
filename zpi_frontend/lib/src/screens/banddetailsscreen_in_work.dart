@@ -7,9 +7,11 @@ import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import '../services/user_data.dart';
+import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
 import '../widgets/concert_panel_admin.dart';
 import '../widgets/memberlist_admin.dart';
+import '../services/websocketservice.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -113,14 +115,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         ),
         body: TabBarView(
           children: <Widget>[
-            // First Tab: All Functionalities
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Current Song Section
                     const Text(
                       "Current song: TODO",
                       style: TextStyle(
@@ -166,7 +166,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             widget.admin
                 ? ConcertPanelAdmin(group: widget.group)
                 : Text("data"),
-            // Third Tab: Empty
           ],
         ),
       ),

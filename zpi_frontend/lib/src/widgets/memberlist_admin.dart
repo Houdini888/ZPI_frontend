@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/websocketservice.dart';
-import 'package:zpi_frontend/src/widgets/status_indicator.dart';
+import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
 import '../services/user_data.dart';
 
@@ -14,6 +14,7 @@ class MemberListAdmin extends StatefulWidget {
   final String groupname;
   final String admin;
   final Function(User) onRemoveMember;
+
 
   MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
 
@@ -26,12 +27,20 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
-  // late WebSocketService webSocketService;
+  late WebSocketService _webSocketService;
+  bool _isUserLoaded = false;
+
 
   Future<void> _loadAsync() async {
-    user = (await UserPreferences.getUserName())!;
-    setState(() {}); // Refresh the UI after retrieving the username
-  }
+  user = (await UserPreferences.getUserName())!;
+  _webSocketService = WebSocketService(
+    username: user,
+    group: widget.groupname,
+  );
+  setState(() {
+    _isUserLoaded = true;
+  });
+}
 
   @override
   void initState() {
@@ -62,6 +71,17 @@ class _MemberListAdminState extends State<MemberListAdmin> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isUserLoaded) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Band members"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
   return Scaffold(
     appBar: AppBar(
       title: Text("Band members"),
@@ -75,9 +95,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/prof_dziekan.jpg'),
-              ),
+              leading: StatusCircle(username: member.username, webSocketService: _webSocketService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(
@@ -94,14 +112,13 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       );
                     }).toList(),
                     onChanged: (String? newInstrument) {
-                      changeUserInstrument('test1', widget.groupname, member, newInstrument);
+                      changeUserInstrument(widget.admin, widget.groupname, member, newInstrument);
                       setState(() {
                       });
                     },
                     ),
-                  // StatusIndicator(webSocketService: webSocketService)
                 ],
-  ),
+              ),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
                 child: Text("Delete")
@@ -132,7 +149,6 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
       showStringDialog(context, receivedString);
     } 
     catch (error) {
-      // showErrorDialog(context, error.toString());
       print(error);
     }
   }
@@ -161,7 +177,6 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
                         isCopied = true;
                       });
 
-                      // Show toast instead of snackbar
                       Fluttertoast.showToast(
                         msg: 'Token copied to clipboard',
                         toastLength: Toast.LENGTH_SHORT,
