@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/screens/home.dart';
 import 'package:zpi_frontend/src/services/user_data.dart';
+import 'package:zpi_frontend/src/services/websocketservice.dart';
 import 'login.dart';
 
 void main() async {
@@ -14,12 +15,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final String initialRoute;
-
-  const MyApp({super.key, required this.initialRoute});
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       initialRoute: initialRoute,
       routes: {
         '/login': (context) => LoginScreen(),

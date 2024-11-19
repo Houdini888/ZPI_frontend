@@ -26,7 +26,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
-  late WebSocketService webSocketService;
+  // late WebSocketService webSocketService;
 
   Future<void> _loadAsync() async {
     user = (await UserPreferences.getUserName())!;
@@ -99,12 +99,12 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       });
                     },
                     ),
-                  StatusIndicator(webSocketService: webSocketService)
+                  // StatusIndicator(webSocketService: webSocketService)
                 ],
   ),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
-                child: Text("Usuń członka")
+                child: Text("Delete")
                 ),
               onTap: () {}
             ),

@@ -1,13 +1,15 @@
+import 'dart:io';
+
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/widgets/bands_files_list_member.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+import '../services/user_data.dart';
 import '../widgets/bands_files_list_admin.dart';
+import '../widgets/concert_panel_admin.dart';
 import '../widgets/memberlist_admin.dart';
-import '../widgets/status_indicator.dart';
-import '../services/websocketservice.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -27,14 +29,18 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
-  final WebSocketService webSocketService = WebSocketService();
+  late String currentUser;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
-    webSocketService.connect('test1', widget.group.groupName);
+    _loadAsync();
+  }
+
+  Future<void> _loadAsync() async {
+    currentUser = (await UserPreferences.getUserName())!;
   }
 
   Future<void> removeMember(User user) async {
@@ -123,9 +129,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const ElevatedButton(
-                      onPressed: null,
-                      child: Text("Choose the song"),
+                    ElevatedButton(
+                      onPressed: (){
+                          String instrument = users.firstWhere((user) => user.username == currentUser).instrument;
+                          UserPreferences.saveActiveGroup(groupName);
+                          UserPreferences.saveActiveGroupInstrument(instrument);
+
+                      },
+                      child: const Text("Activate Group"),
                     ),
                     const SizedBox(height: 24),
 
@@ -152,8 +163,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             widget.admin
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
+            widget.admin
+                ? ConcertPanelAdmin(group: widget.group)
+                : Text("data"),
             // Third Tab: Empty
-            Stack(children: [StatusIndicator(webSocketService: webSocketService)],),
           ],
         ),
       ),

@@ -10,9 +10,9 @@ import '../models/file_data.dart';
 import '../models/group_list.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:8080";
-  static const String authUrl = "http://localhost:8081";
-  static const String secUrl = "https://localhost:8443";
+  static const String baseUrl = "http://192.168.224.177:8080";
+  static const String authUrl = "http://192.168.224.177:8081";
+  static const String secUrl = "https://192.168.224.177:8443";
 
   // for testing purposes only
   final String testGroup = 'testGroup';
