@@ -119,7 +119,6 @@ class _MemberListAdminState extends State<MemberListAdmin> {
                       });
                     },
                     ),
-                  // StatusIndicator(webSocketService: webSocketService, memberName: user)
                 ],
               ),
               trailing: ElevatedButton(
@@ -152,7 +151,6 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
       showStringDialog(context, receivedString);
     } 
     catch (error) {
-      // showErrorDialog(context, error.toString());
       print(error);
     }
   }
@@ -181,7 +179,6 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
                         isCopied = true;
                       });
 
-                      // Show toast instead of snackbar
                       Fluttertoast.showToast(
                         msg: 'Token copied to clipboard',
                         toastLength: Toast.LENGTH_SHORT,

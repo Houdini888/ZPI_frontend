@@ -24,7 +24,6 @@ class _StatusCircleState extends State<StatusCircle> {
   void initState() {
     super.initState();
 
-    // Listen for updates specific to this user.
     widget.webSocketService.statusStream.listen((statuses) {
       if (statuses.containsKey(widget.username)) {
         setState(() {
@@ -36,7 +35,6 @@ class _StatusCircleState extends State<StatusCircle> {
 
   void _toggleStatus(bool newStatus) {
     if (widget.username != widget.loggedInUsername) {
-      // Prevent unauthorized interaction.
       return;
     }
 
@@ -44,7 +42,6 @@ class _StatusCircleState extends State<StatusCircle> {
     String message = newStatus ? 'ready' : 'unready';
     widget.webSocketService.sendMessage(message);
 
-    // Update the local status for immediate feedback.
     setState(() {
       _isReady = newStatus;
     });

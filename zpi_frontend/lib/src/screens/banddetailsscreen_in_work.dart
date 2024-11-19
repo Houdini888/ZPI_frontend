@@ -27,18 +27,12 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
-  // late WebSocketService2 _webSocketService;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
-    // _webSocketService = WebSocketService2(
-    //   username: "test1",
-    //   group: groupName,
-    //   onStatusUpdate: (_) {}, // No-op for global updates in this example.
-    // );
   }
 
   Future<void> removeMember(User user) async {
@@ -111,14 +105,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         ),
         body: TabBarView(
           children: <Widget>[
-            // First Tab: All Functionalities
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Current Song Section
                     const Text(
                       "Current song: TODO",
                       style: TextStyle(
@@ -133,7 +125,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Member List Section
                     SizedBox(
                       height: 500,
                       child: widget.admin
@@ -156,8 +147,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             widget.admin
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
-            // Third Tab: Empty
-            // Stack(children: [StatusCircle(username: 'test2', webSocketService: _webSocketService)],),
             Stack(children: [Text("empty")],),
           ],
         ),
