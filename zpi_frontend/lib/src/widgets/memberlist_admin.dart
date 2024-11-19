@@ -27,14 +27,22 @@ class MemberListAdmin extends StatefulWidget {
 
 class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
-  late String user = '';
+  late String user;
   late List<String> _allInstruments = [];
   late WebSocketService _webSocketService;
+  bool _isUserLoaded = false;
+
 
   Future<void> _loadAsync() async {
-    user = (await UserPreferences.getUserName())!;
-    setState(() {});
-  }
+  user = (await UserPreferences.getUserName())!;
+  _webSocketService = WebSocketService(
+    username: user,
+    group: widget.groupname,
+  );
+  setState(() {
+    _isUserLoaded = true;
+  });
+}
 
   @override
   void initState() {
@@ -42,11 +50,6 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     _loadAsync();
     localMembers = widget.members;
     _getAllInstruments();
-    _webSocketService = WebSocketService(
-      username: 'test1',
-      group: widget.groupname,
-    );
-
   }
 
   Future<void> _getAllInstruments() async{
@@ -70,6 +73,17 @@ class _MemberListAdminState extends State<MemberListAdmin> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isUserLoaded) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Band members"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
   return Scaffold(
     appBar: AppBar(
       title: Text("Band members"),

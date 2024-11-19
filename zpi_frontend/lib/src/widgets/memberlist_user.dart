@@ -23,23 +23,26 @@ class MemberListUser extends StatefulWidget {
 
 class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
-  late String user = '';
+  late String user;
   late WebSocketService _webSocketService;
+  bool _isUserLoaded = false;
 
   Future<void> _loadAsync() async {
-    user = (await UserPreferences.getUserName())!;
-    setState(() {});
-  }
+  user = (await UserPreferences.getUserName())!;
+  _webSocketService = WebSocketService(
+    username: user,
+    group: widget.groupname,
+  );
+  setState(() {
+    _isUserLoaded = true;
+  });
+}
 
   @override
   void initState(){
     super.initState();
     _loadAsync();
     localMembers = widget.members;
-    _webSocketService = WebSocketService(
-      username: 'test1',
-      group: widget.groupname,
-    );
   }
 
   @override
@@ -54,6 +57,17 @@ class _MemberListUserState extends State<MemberListUser> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isUserLoaded) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Band members"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+  
   return Scaffold(
     appBar: AppBar(
       title: Text("Band members"),
