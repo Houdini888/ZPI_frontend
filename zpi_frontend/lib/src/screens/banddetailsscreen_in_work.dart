@@ -106,8 +106,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 indicatorColor: Colors.blueGrey,
                 tabs: [
                   Tab(text: "Details"),
-                  Tab(text: "Empty Tab 1"),
-                  Tab(text: "Empty Tab 2"),
+                  Tab(text: "Files"),
+                  Tab(text: "Concerts"),
                 ],
               ),
             ),
@@ -121,19 +121,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      "Current song: TODO",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                    // const Text(
+                    //   "Current song: TODO",
+                    //   style: TextStyle(
+                    //     fontSize: 24,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: (){
                           String instrument = users.firstWhere((user) => user.username == currentUser).instrument;
                           UserPreferences.saveActiveGroup(groupName);
                           UserPreferences.saveActiveGroupInstrument(instrument);
+
+                          WebSocketService().disconnect();
+                          WebSocketService().connect(currentUser, groupName);
 
                       },
                       child: const Text("Activate Group"),

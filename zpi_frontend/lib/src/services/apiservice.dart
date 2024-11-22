@@ -11,6 +11,7 @@ import '../models/group_list.dart';
 
 class ApiService {
   static const String baseUrl = "http://192.168.224.177:8080";
+  // static const String baseUrl = "http://20.215.89.12:8080";
   static const String authUrl = "http://192.168.224.177:8081";
   static const String secUrl = "https://192.168.224.177:8443";
 
@@ -60,7 +61,6 @@ class ApiService {
   Future<List<FileData>> fetchAllFiles(String username, String group) async {
     final url =
         Uri.parse('$baseUrl/getAllFiles?username=$username&group=$group');
-
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -70,6 +70,31 @@ class ApiService {
       throw Exception('Failed to load files');
     }
   }
+
+  Future<bool> createUser(String username, String password) async {
+    final url = Uri.parse('$baseUrl/createUser?username=$username&password=$password');
+
+    try {
+      // Send the POST request with the username and password in the body
+      final response = await http.post(
+        url
+      );
+
+      if (response.statusCode == 200) {
+        // User created successfully
+        return true;
+      } else {
+        // Log error details for debugging
+        print("Failed to create user: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      // Handle connection or other errors
+      print("Error creating user: $e");
+      return false;
+    }
+  }
+
 
   Future<List<User>> fetchUsersInGroup(int groupId) async {
     final response =

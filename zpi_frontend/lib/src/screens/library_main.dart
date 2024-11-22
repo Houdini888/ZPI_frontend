@@ -8,6 +8,8 @@ import 'package:zpi_frontend/src/screens/pdf_preview.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
+import '../services/user_data.dart';
+
 class LibraryMainPage extends StatefulWidget {
   const LibraryMainPage({super.key, required this.title});
 
@@ -19,6 +21,8 @@ class LibraryMainPage extends StatefulWidget {
 
 class _LibraryMainPageState extends State<LibraryMainPage> {
   List<PdfNotesFile> docsList = [];
+  late String user;
+
 
   final Future<SharedPreferencesWithCache> _prefs =
   SharedPreferencesWithCache.create(
@@ -26,8 +30,15 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       ));
 
   Future _initPdfs() async {
-    final Directory appDir = await getApplicationDocumentsDirectory();
-    final List<FileSystemEntity> files = appDir.listSync(); // List all files
+    final directory = await getApplicationDocumentsDirectory();
+    user = (await UserPreferences.getUserName())!;
+
+    // Create a subdirectory named after the current user
+    final userDirectory = Directory('${directory.path}/$user');
+    if (!await userDirectory.exists()) {
+      await userDirectory.create(recursive: true); // Create directory if it doesn't exist
+    }
+    final List<FileSystemEntity> files = userDirectory.listSync(); // List all files
 
     final List<PdfNotesFile> loadedPdfs = [];
     for (FileSystemEntity entity in files) {
@@ -56,13 +67,19 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       File pickedPdf = File(result.files.single.path!);
 
       // Get the app's documents directory
-      Directory appDir = await getApplicationDocumentsDirectory();
+      final directory = await getApplicationDocumentsDirectory();
+
+      // Create a subdirectory named after the current user
+      final userDirectory = Directory('${directory.path}/$user');
+      if (!await userDirectory.exists()) {
+        await userDirectory.create(recursive: true); // Create directory if it doesn't exist
+      }
 
       // Create a unique file name for the PDF
       String fileName = result.files.single.name;
 
       // Save the PDF to the app's documents directory
-      File savedPdf = await pickedPdf.copy('${appDir.path}/$fileName');
+      File savedPdf = await pickedPdf.copy('${userDirectory.path}/$fileName');
 
       setState(() {
         if(!docsList.contains(PdfNotesFile(savedPdf)))

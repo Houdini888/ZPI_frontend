@@ -5,10 +5,9 @@ import 'package:web_socket_channel/status.dart' as status;
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
 
-  late WebSocketChannel channel;
+  WebSocketChannel? channel; // Make channel nullable
   final StreamController<String> _messageController = StreamController<String>.broadcast();
   final StreamController<String> _statusController = StreamController<String>.broadcast();
-
 
   WebSocketService._internal();
 
@@ -16,46 +15,68 @@ class WebSocketService {
 
   // Streams for listening to messages and status updates
   Stream<String> get messageStream => _messageController.stream;
+
   Stream<String> get statusStream => _statusController.stream;
 
   void connect(String username, String groupname) {
     final String url = 'ws://192.168.224.177:8080/message?username=$username&group=$groupname';
-    channel = WebSocketChannel.connect(Uri.parse(url));
 
-    print('Connected to WebSocket at $url');
+    // Close any existing connection
+    disconnect();
 
-    // Listen for messages
-    channel.stream.listen(
-          (data) {
-        print('Received: $data');
+    try {
+      channel = WebSocketChannel.connect(Uri.parse(url));
+      print('Connected to WebSocket at $url');
 
-        if (data is String && !data.contains('status') && data != '200') { // Example filter
-          _messageController.add(data); // Add the message to the stream
-        }
-      },
-      onDone: () {
-        print('WebSocket connection closed');
-        _statusController.add('disconnected');
-        _reconnect(username, groupname);
-      },
-      onError: (error) {
-        print('Error: $error');
-        _statusController.add('error: $error');
-        _reconnect(username, groupname);
-      },
-    );
+      // Listen for messages
+      channel!.stream.listen(
+            (data) {
+          print('Received: $data');
+
+          if (data is String &&
+              !data.contains('status') &&
+              !data.contains('Unready') &&
+              !data.contains('Ready') &&
+              data != '200') {
+            _messageController.add(data); // Add the message to the stream
+          }
+        },
+        onDone: () {
+          print('WebSocket connection closed');
+          _statusController.add('disconnected');
+          _reconnect(username, groupname);
+        },
+        onError: (error) {
+          print('Error: $error');
+          _statusController.add('error: $error');
+          _reconnect(username, groupname);
+        },
+      );
+    } catch (e) {
+      print('Error connecting to WebSocket: $e');
+      _statusController.add('error: $e');
+      _reconnect(username, groupname);
+    }
   }
 
   void sendMessage(String message) {
     if (channel != null) {
-      channel.sink.add(message);
-      print('Sent: $message');
+      try {
+        channel!.sink.add(message);
+        print('Sent: $message');
+      } catch (e) {
+        print('Error sending message: $e');
+        _statusController.add('error sending message: $e');
+      }
+    } else {
+      print('WebSocket is not connected.');
     }
   }
 
   void disconnect() {
     if (channel != null) {
-      channel.sink.close(status.normalClosure);
+      channel!.sink.close(status.normalClosure);
+      channel = null; // Nullify the channel
       print('Disconnected from WebSocket');
     }
   }
@@ -66,5 +87,4 @@ class WebSocketService {
       connect(username, groupname);
     });
   }
-
 }

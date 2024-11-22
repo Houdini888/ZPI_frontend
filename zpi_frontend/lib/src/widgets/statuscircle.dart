@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/src/services/websocketservice.dart';
+import '../services/websocket_statusservice.dart';
 
 class StatusCircle extends StatefulWidget {
   final String username;
-  final WebSocketService webSocketService;
+  final WebSocket_StatusService webSocketService;
   final String loggedInUsername; // Add the logged-in username as a parameter.
 
   const StatusCircle({

@@ -123,6 +123,8 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Logout'),
             onTap: () async {
               await UserPreferences.clearUserName(); // Clear the stored username
+              await UserPreferences.clearActiveGroup(); // Clear the stored username
+              await UserPreferences.clearActiveGroupInstrument(); // Clear the stored username
               Navigator.popUntil(context, (route) => route.isFirst); // Close the drawer
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen())); // Go to login
             },

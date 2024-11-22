@@ -7,6 +7,7 @@ import 'package:zpi_frontend/src/screens/bandlistscreen.dart';
 import 'package:zpi_frontend/src/screens/library_main.dart';
 import 'package:zpi_frontend/src/screens/pdf_preview.dart';
 import 'package:zpi_frontend/src/screens/setlists_main.dart';
+import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/user_data.dart'; // For UserPreferences
 import 'package:zpi_frontend/src/services/websocketservice.dart'; // For WebSocketService
 import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
@@ -31,47 +32,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeWebSocket() async {
-    // Fetch the username from UserPreferences
     username = (await UserPreferences.getUserName())!;
     groupName = (await UserPreferences.getActiveGroup())!;
-
-    // Initialize the WebSocket connection with the username and group
     _webSocketService.connect(username, groupName);
   }
 
   void _listenToIncomingMessages() {
-    // Listen to WebSocket messages
     _webSocketService.messageStream.listen((message) {
-      _showIncomingMessageDialog(message); // Show dialog on message reception
+      _showIncomingMessageDialog(message);
     });
   }
 
-  void _showIncomingMessageDialog(String message) {
-    // Show alert dialog only for messages
+  void _showIncomingMessageDialog(String message) async {
     if (!mounted) return;
 
+    // Save a reference to the current context
+    final BuildContext dialogContext = context;
+
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: dialogContext,
+      builder: (BuildContext dialogBuilderContext) => AlertDialog(
         title: const Text('New piece to play, do you want to open it?'),
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogBuilderContext).pop(),
             child: const Text('No'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.of(dialogBuilderContext).pop(); // Close initial dialog
               final String? instrument = await UserPreferences.getActiveGroupInstrument();
-              final directory = await getApplicationDocumentsDirectory();
-              final filePath = '${directory.path}/$message-$instrument.pdf';
-              File messageFile = File(filePath);
-              PdfNotesFile doc = PdfNotesFile(messageFile);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ReaderScreen([doc], doc.name)));
+
+              if (instrument == null) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No active group instrument found.')),
+                  );
+                }
+                return;
+              }
+
+              // Show loading dialog
+              if (!mounted) return;
+              await _showLoadingDialog(dialogContext, 'Downloading...');
+
+              try {
+                final file = await _downloadAndSavePdf(message, instrument);
+
+                if (mounted) Navigator.of(dialogContext).pop(); // Close loading dialog
+
+                if (file != null && await file.exists()) {
+                  if (mounted) {
+                    PdfNotesFile doc = PdfNotesFile(file);
+                    Navigator.push(
+                      dialogContext,
+                      MaterialPageRoute(
+                        builder: (context) => ReaderScreen([doc], doc.name),
+                      ),
+                    );
+                  }
+                } else {
+                  throw Exception('File does not exist after download.');
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.of(dialogContext).pop(); // Close loading dialog
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Yes'),
           ),
@@ -80,9 +111,66 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _showLoadingDialog(BuildContext context, String message) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            content: Row(
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(width: 16),
+                Expanded(child: Text(message)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<File?> _downloadAndSavePdf(String piece, String instrument) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+
+      // Create a subdirectory named after the current user
+      final userDirectory = Directory('${directory.path}/$username');
+      if (!await userDirectory.exists()) {
+        await userDirectory.create(recursive: true); // Create directory if it doesn't exist
+      }
+      final filePath = '${userDirectory.path}/$piece-$instrument.pdf';
+
+      if (await File(filePath).exists()) {
+        return File(filePath); // Return existing file if it exists
+      }
+
+      groupName = (await UserPreferences.getActiveGroup())!;
+
+      final file = await ApiService().downloadFile(
+        username: username,
+        group: groupName,
+        piece: piece,
+        instrument: instrument,
+      );
+
+      if (file != null) {
+        final savedFile = await file.copy(filePath);
+        return savedFile;
+      } else {
+        throw Exception('Failed to download file.');
+      }
+    } catch (e) {
+      throw Exception('Error downloading file: $e');
+    }
+  }
+
+
+
   @override
   void dispose() {
-    // Disconnect WebSocket when leaving HomeScreen
     _webSocketService.disconnect();
     super.dispose();
   }

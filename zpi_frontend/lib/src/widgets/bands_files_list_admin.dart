@@ -43,7 +43,7 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error loading files'));
+            return Center(child: Text('Sooo empty here...'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No files available'));
           } else {
@@ -264,7 +264,13 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
   Future<void> _savePdf(String piece, String instrument) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/$piece-$instrument.pdf';
+
+      // Create a subdirectory named after the current user
+      final userDirectory = Directory('${directory.path}/$user');
+      if (!await userDirectory.exists()) {
+        await userDirectory.create(recursive: true); // Create directory if it doesn't exist
+      }
+      final filePath = '${userDirectory.path}/$piece-$instrument.pdf';
 
       // Check if the file already exists
       final fileExists = await File(filePath).exists();
