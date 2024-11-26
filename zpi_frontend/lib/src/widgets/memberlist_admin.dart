@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
-import 'package:zpi_frontend/src/services/websocketservice.dart';
+import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
 import '../services/user_data.dart';
@@ -29,13 +29,12 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
-  late WebSocketService _webSocketService;
+  late WebSocket_StatusService _ws_StatusService;
   bool _isUserLoaded = false;
-
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
-  _webSocketService = WebSocketService(
+  _ws_StatusService = WebSocket_StatusService(
     username: user,
     group: widget.groupname,
   );
@@ -47,7 +46,9 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   @override
   void initState() {
     super.initState();
-    _loadAsync();
+    _loadAsync().then((_) {
+      _ws_StatusService.requestStatus();
+    });
     localMembers = widget.members;
     _getAllInstruments();
   }
@@ -97,7 +98,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: StatusCircle(username: member.username, webSocketService: _webSocketService, loggedInUsername: user,),
+              leading: StatusCircle(username: member.username, ws_StatusService: _ws_StatusService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(

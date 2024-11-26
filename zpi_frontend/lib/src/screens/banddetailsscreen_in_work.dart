@@ -7,13 +7,13 @@ import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
 import '../widgets/memberlist_admin.dart';
-import '../services/websocketservice.dart';
+import '../services/websocket_statusservice_local.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
   final bool admin;
   final String adminName;
-
+  
   const GroupDetailsScreen(
       {super.key,
       required this.group,

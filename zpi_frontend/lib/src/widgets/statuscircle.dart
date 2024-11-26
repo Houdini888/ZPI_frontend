@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:zpi_frontend/src/services/websocketservice.dart';
+import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 
 class StatusCircle extends StatefulWidget {
   final String username;
-  final WebSocketService webSocketService;
-  final String loggedInUsername; // Add the logged-in username as a parameter.
+  final WebSocket_StatusService ws_StatusService;
+  final String loggedInUsername;
 
   const StatusCircle({
     required this.username,
-    required this.webSocketService,
+    required this.ws_StatusService,
     required this.loggedInUsername,
     Key? key,
   }) : super(key: key);
@@ -18,13 +18,13 @@ class StatusCircle extends StatefulWidget {
 }
 
 class _StatusCircleState extends State<StatusCircle> {
-  bool _isReady = false;
+  bool? _isReady = false;
 
   @override
   void initState() {
     super.initState();
 
-    widget.webSocketService.statusStream.listen((statuses) {
+    widget.ws_StatusService.statusStream.listen((statuses) {
       if (statuses.containsKey(widget.username)) {
         setState(() {
           _isReady = statuses[widget.username]!;
@@ -38,9 +38,8 @@ class _StatusCircleState extends State<StatusCircle> {
       return;
     }
 
-    // Send plain text "ready" or "unready" to the server.
     String message = newStatus ? 'ready' : 'unready';
-    widget.webSocketService.sendMessage(message);
+    widget.ws_StatusService.sendMessage(message);
 
     setState(() {
       _isReady = newStatus;
@@ -49,7 +48,14 @@ class _StatusCircleState extends State<StatusCircle> {
 
   @override
   Widget build(BuildContext context) {
-    Color circleColor = _isReady ? Colors.green : Colors.yellow;
+    Color circleColor;
+    if (_isReady == null) {
+      circleColor = Colors.red; // Offline
+    } else if (_isReady == true) {
+      circleColor = Colors.green; // Ready
+    } else {
+      circleColor = Colors.yellow; // Unready
+    }
 
     return GestureDetector(
       onTap: widget.username == widget.loggedInUsername

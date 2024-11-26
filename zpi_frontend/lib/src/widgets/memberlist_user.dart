@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/user_data.dart';
-import 'package:zpi_frontend/src/services/websocketservice.dart';
+import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/instrument_dropdown.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
@@ -24,12 +24,12 @@ class MemberListUser extends StatefulWidget {
 class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
   late String user;
-  late WebSocketService _webSocketService;
+  late WebSocket_StatusService _wsStatusService;
   bool _isUserLoaded = false;
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
-  _webSocketService = WebSocketService(
+  _wsStatusService = WebSocket_StatusService(
     username: user,
     group: widget.groupname,
   );
@@ -80,7 +80,7 @@ class _MemberListUserState extends State<MemberListUser> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: StatusCircle(username: member.username, webSocketService: _webSocketService, loggedInUsername: user,),
+              leading: StatusCircle(username: member.username, ws_StatusService: _wsStatusService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(
