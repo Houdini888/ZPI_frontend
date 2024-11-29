@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:zpi_frontend/src/services/user_data.dart';
 
 class WebSocket_StatusService {
   late WebSocketChannel _channel;
   final StreamController<Map<String, bool>> _statusController = StreamController.broadcast();
   Map<String, bool> _statuses = {};
+  // final String username;
 
   WebSocket_StatusService({required String username, required String group}) {
     _channel = WebSocketChannel.connect(
@@ -21,16 +23,24 @@ class WebSocket_StatusService {
         _statuses[data['Username']] = data['Ready'];
         _statusController.add({..._statuses});
       } else if (data is List) {
-        _statuses.clear();
 
-        // for (var user in data) {
-          _statuses = _deduplicateStatuses(data);
-          // _statuses[user['Username']] = user['Ready'];
-        // }
-        print(_statuses);
-        _statusController.add({..._statuses});
+          Map<String, bool> receivedStatuses = _deduplicateStatuses(data);
+          print(username);
+          receivedStatuses.remove(username);
+           _statuses.addAll(receivedStatuses);
+          _statusController.add({..._statuses});
       }
     });
+  }
+
+  Future<void> initialize() async {
+    bool? storedStatus = await UserPreferences.getUserStatus();
+    if (storedStatus != null) {
+      String message = storedStatus ? 'ready' : 'unready';
+      sendMessage(message);
+    }
+
+    requestStatus();
   }
 
   Map<String, bool> _deduplicateStatuses(List<dynamic> statusList) {
@@ -38,6 +48,8 @@ class WebSocket_StatusService {
     for (var status in statusList) {
       latestStatuses[status['Username']] = status['Ready'];
     }
+    print('before decoupling: $statusList');
+    print('after decoupling: $latestStatuses');
     return latestStatuses;
   }
 
@@ -55,7 +67,13 @@ class WebSocket_StatusService {
     sendMessage('status');
   }
 
+  void setReadyStatus(bool isReady) {
+    String message = isReady ? 'ready' : 'unready';
+    sendMessage(message);
+  }
+
   void close() {
     _channel.sink.close();
+    _statusController.close();
   }
 }

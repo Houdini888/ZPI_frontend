@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,9 +14,19 @@ class MemberListAdmin extends StatefulWidget {
   final String groupname;
   final String admin;
   final Function(User) onRemoveMember;
-  
 
-  MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
+  final WebSocket_StatusService ws_StatusService;
+  final String loggedInUsername;
+
+
+  MemberListAdmin({
+    required this.members,
+    required this.groupname,
+    required this.onRemoveMember,
+    required this.admin,
+    required this.ws_StatusService, // Added
+    required this.loggedInUsername, // Added
+  });
 
   @override
   _MemberListAdminState createState() => _MemberListAdminState();
@@ -29,15 +37,12 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
-  late WebSocket_StatusService _ws_StatusService;
   bool _isUserLoaded = false;
+  bool _currentUserReady = false;
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
-  _ws_StatusService = WebSocket_StatusService(
-    username: user,
-    group: widget.groupname,
-  );
+
   setState(() {
     _isUserLoaded = true;
   });
@@ -46,11 +51,10 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   @override
   void initState() {
     super.initState();
-    _loadAsync().then((_) {
-      _ws_StatusService.requestStatus();
-    });
+    _loadAsync();
     localMembers = widget.members;
     _getAllInstruments();
+    _listenToStatusUpdates();
   }
 
   Future<void> _getAllInstruments() async{
@@ -62,12 +66,29 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     }
   }
 
+  void _listenToStatusUpdates() {
+    widget.ws_StatusService.statusStream.listen((statuses) {
+      if (statuses.containsKey(user)) {
+        bool isReady = statuses[user]!;
+        if (isReady && !_currentUserReady) {
+          setState(() {
+            _currentUserReady = true;
+          });
+        } else if (!isReady && _currentUserReady) {
+          setState(() {
+            _currentUserReady = false;
+          });
+        }
+      }
+    });
+  }
+
   @override
   void didUpdateWidget(MemberListAdmin oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.members != widget.members) {
       setState(() {
-        localMembers = widget.members; // Update local list if parent list changes
+        localMembers = widget.members;
       });
     }
   }
@@ -98,7 +119,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: StatusCircle(username: member.username, ws_StatusService: _ws_StatusService, loggedInUsername: user,),
+              leading: StatusCircle(username: member.username, ws_StatusService: widget.ws_StatusService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(
@@ -124,7 +145,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
               ),
               trailing: ElevatedButton(
                 onPressed: () => widget.onRemoveMember(localMembers[index]),
-                child: Text("Usuń członka")
+                child: Text("Delete")
                 ),
               onTap: () {}
             ),

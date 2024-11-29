@@ -1,19 +1,26 @@
+import 'dart:io';
+
+import 'package:path/path.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/widgets/bands_files_list_member.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
+import '../services/user_data.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
+import '../widgets/concert_panel_admin.dart';
 import '../widgets/memberlist_admin.dart';
 import '../services/websocket_statusservice_local.dart';
+import '../services/websocketservice.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
   final bool admin;
   final String adminName;
-  
+
   const GroupDetailsScreen(
       {super.key,
       required this.group,
@@ -27,12 +34,34 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
+  late String currentUser;
+  late WebSocket_StatusService _ws_StatusService;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
+    _initializeWebSocket();
+  }
+
+  Future<void> _loadAsync() async {
+    currentUser = (await UserPreferences.getUserName())!;
+  }
+
+  Future<void> _initializeWebSocket() async {
+    currentUser = (await UserPreferences.getUserName())!;
+    _ws_StatusService = WebSocket_StatusService(
+      username: currentUser,
+      group: groupName,
+    );
+
+    await _ws_StatusService.initialize();
+
+    setState(() {
+      _isInitialized = true;
+    });
   }
 
   Future<void> removeMember(User user) async {
@@ -43,15 +72,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       setState(() {
         users.removeWhere((removed) => removed == user);
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to remove member')),
-      );
-    }
+    } 
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Band details"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return DefaultTabController(
       initialIndex: 0,
       length: 3,
@@ -96,8 +132,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 indicatorColor: Colors.blueGrey,
                 tabs: [
                   Tab(text: "Details"),
-                  Tab(text: "Empty Tab 1"),
-                  Tab(text: "Empty Tab 2"),
+                  Tab(text: "Files"),
+                  Tab(text: "Concerts"),
                 ],
               ),
             ),
@@ -111,20 +147,21 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      "Current song: TODO",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const ElevatedButton(
-                      onPressed: null,
-                      child: Text("Choose the song"),
+                    ElevatedButton(
+                      onPressed: (){
+                          String instrument = users.firstWhere((user) => user.username == currentUser).instrument;
+                          UserPreferences.saveActiveGroup(groupName);
+                          UserPreferences.saveActiveGroupInstrument(instrument);
+
+                          WebSocketService().disconnect();
+                          WebSocketService().connect(currentUser, groupName);
+
+                      },
+                      child: const Text("Activate Group"),
                     ),
                     const SizedBox(height: 24),
 
+                    // Member List Section
                     SizedBox(
                       height: 500,
                       child: widget.admin
@@ -133,12 +170,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                               groupname: widget.group.groupName,
                               onRemoveMember: removeMember,
                               admin: widget.adminName,
+                              ws_StatusService: _ws_StatusService,
+                              loggedInUsername: currentUser,
                             )
                           : MemberListUser(
                               members: users,
                               groupname: widget.group.groupName,
                               onRemoveMember: removeMember,
-                              admin: widget.adminName),
+                              admin: widget.adminName
+                              ),
                     ),
                   ],
                 ),
@@ -147,7 +187,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             widget.admin
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
-            Stack(children: [Text("empty")],),
+            widget.admin
+                ? ConcertPanelAdmin(group: widget.group)
+                : Text("data"),
           ],
         ),
       ),

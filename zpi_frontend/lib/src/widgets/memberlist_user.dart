@@ -8,6 +8,8 @@ import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/instrument_dropdown.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
+// import '../services/websocket_statusservice.dart';
+
 class MemberListUser extends StatefulWidget {
 
   final List<User> members;

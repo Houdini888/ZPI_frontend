@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zpi_frontend/src/services/user_data.dart';
 import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 
 class StatusCircle extends StatefulWidget {
@@ -19,21 +20,44 @@ class StatusCircle extends StatefulWidget {
 
 class _StatusCircleState extends State<StatusCircle> {
   bool? _isReady = false;
+  // late bool? _isCurrentUserReady;
 
   @override
   void initState() {
     super.initState();
 
-    widget.ws_StatusService.statusStream.listen((statuses) {
+
+    if (widget.username == widget.loggedInUsername) {
+      _loadStoredStatus();
+    }
+
+      widget.ws_StatusService.statusStream.listen((statuses) {
       if (statuses.containsKey(widget.username)) {
         setState(() {
           _isReady = statuses[widget.username]!;
         });
       }
     });
+
   }
 
-  void _toggleStatus(bool newStatus) {
+  void _loadStoredStatus() async {
+    bool? storedStatus = await UserPreferences.getUserStatus();
+    print('stored status: $storedStatus');
+    if (storedStatus != null && storedStatus == true) {
+
+      // widget.ws_StatusService.sendMessage('ready');
+
+      if (storedStatus != null){
+          setState(() {
+          _isReady = storedStatus;
+      });
+      }
+
+    }
+  }
+
+  void _toggleStatus(bool newStatus) async {
     if (widget.username != widget.loggedInUsername) {
       return;
     }
@@ -41,8 +65,11 @@ class _StatusCircleState extends State<StatusCircle> {
     String message = newStatus ? 'ready' : 'unready';
     widget.ws_StatusService.sendMessage(message);
 
+    await UserPreferences.setUserStatus(newStatus);
+
     setState(() {
       _isReady = newStatus;
+
     });
   }
 
@@ -50,7 +77,7 @@ class _StatusCircleState extends State<StatusCircle> {
   Widget build(BuildContext context) {
     Color circleColor;
     if (_isReady == null) {
-      circleColor = Colors.red; // Offline
+      circleColor = Colors.grey; // Unknown or loading state
     } else if (_isReady == true) {
       circleColor = Colors.green; // Ready
     } else {
@@ -90,8 +117,8 @@ class _StatusCircleState extends State<StatusCircle> {
             }
           : null, // Disable interaction if not the logged-in user.
       child: Container(
-        width: 20.0,
-        height: 20.0,
+        width: 30.0,
+        height: 30.0,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: circleColor,
