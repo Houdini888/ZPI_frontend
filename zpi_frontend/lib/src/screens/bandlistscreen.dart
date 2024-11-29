@@ -51,7 +51,8 @@ class _BandListScreenState extends State<BandListScreen> {
             onPressed: () async {
               String groupName = groupNameController.text;
               if (groupName.isNotEmpty) {
-                bool success = await ApiService().createGroup(group: groupName, owner: user);
+                bool success = await ApiService()
+                    .createGroup(group: groupName, owner: user);
                 if (success) {
                   Navigator.pop(context); // Close the dialog
                   _loadGroups(); // Refresh the group list
@@ -95,7 +96,6 @@ class _BandListScreenState extends State<BandListScreen> {
                 bool success = await ApiService().joinGroup(
                   username: user,
                   token: groupCode,
-                  instrument: 'bass',
                 );
                 if (success) {
                   Navigator.pop(context); // Close the dialog
@@ -137,45 +137,65 @@ class _BandListScreenState extends State<BandListScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No groups found.'));
+            return Column(children: [
+              Center(child: Text('No groups found.')),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: _showCreateGroupDialog,
+                  child: Text('Create New Group'),
+                ),
+              ),
+            ]);
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${snapshot.error}')),
+            );
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: _showCreateGroupDialog,
+                child: Text('Create New Group'),
+              ),
+            );
+
           } else {
             final groups = snapshot.data!;
             return ListView(
               children: [
                 // List of groups
                 ...groups.map((group) => Card(
-                  color: Colors.grey,
-                  child: InkWell(
-                    onTap: () async {
-                      final selectedGroup = await ApiService().fetchGroupByName(group.groupName);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GroupDetailsScreen(
-                            group: selectedGroup,
-                            admin: user == group.owner,
-                            adminName: group.owner,
-                          ),
+                      color: Colors.grey,
+                      child: InkWell(
+                        onTap: () async {
+                          final selectedGroup = await ApiService()
+                              .fetchGroupByName(group.groupName, user);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupDetailsScreen(
+                                group: selectedGroup,
+                                admin: user == group.owner,
+                                adminName: group.owner,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/band_pf.jpg',
+                              fit: BoxFit.fill,
+                            ),
+                            Text(
+                              group.groupName,
+                              style: const TextStyle(fontSize: 30),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'assets/images/band_pf.jpg',
-                          fit: BoxFit.fill,
-                        ),
-                        Text(
-                          group.groupName,
-                          style: const TextStyle(fontSize: 30),
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
+                      ),
+                    )),
                 // Create New Group button
                 Padding(
                   padding: const EdgeInsets.all(16.0),

@@ -39,10 +39,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     final password = _loginPasswordController.text.trim();
 
     if (username.isNotEmpty && password.isNotEmpty) {
-      // Save the username in SharedPreferences (or handle login logic here)
-      await UserPreferences.saveUserName(username);
-      // Navigate to the home screen
-      Navigator.pushReplacementNamed(context, '/home');
+        final response = await ApiService().login(username, password);
+        if(response == true) {
+          await UserPreferences.saveUserName(username);
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+        else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("There is no user with this combination of username and password.")),
+          );
+        }
+
     } else {
       // Show an error if the fields are empty
       ScaffoldMessenger.of(context).showSnackBar(

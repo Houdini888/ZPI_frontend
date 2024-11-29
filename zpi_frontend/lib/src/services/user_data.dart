@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPreferences {
   static const _usernameKey = 'username';
   static const _activeGroupKey = 'activeGroup';
   static const _activeGroupInstrumentKey = 'activeGroupInstrument';
+  static const _sessionCodeKey = 'sessionCode';
 
   // Save username in SharedPreferences
   static Future<void> saveUserName(String username) async {
@@ -55,5 +58,25 @@ class UserPreferences {
   static Future<void> clearActiveGroupInstrument() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_activeGroupInstrumentKey);
+  }
+
+  static Future<String?> getSessionCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_sessionCodeKey);
+  }
+
+  static Future<void> createSessionCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    String sessionCode = '';
+    final random = Random();
+    final characters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    for (int i = 0; i < 14; i++) {
+      sessionCode += characters[
+      random.nextInt(characters.length)];
+    }
+
+    await prefs.setString(_sessionCodeKey, sessionCode);
   }
 }

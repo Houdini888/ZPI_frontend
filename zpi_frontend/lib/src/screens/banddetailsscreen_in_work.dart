@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/user.dart';
+import 'package:zpi_frontend/src/screens/setlists_main.dart';
 import 'package:zpi_frontend/src/widgets/bands_files_list_member.dart';
 import 'package:zpi_frontend/src/widgets/memberlist_user.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   }
 
   Future<void> removeMember(User user) async {
-    bool success = await ApiService.removeMemberfromGroup(
-        user.username, widget.group.groupName);
+    bool success = await ApiService().removeMemberFromGroup(
+        username: user.username,groupName: widget.group.groupName);
 
     if (success) {
       setState(() {
@@ -167,7 +168,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
             widget.admin
-                ? ConcertPanelAdmin(group: widget.group)
+                ?SetlistsMain()
+                // ? ConcertPanelAdmin(group: widget.group)
                 : Text("data"),
           ],
         ),

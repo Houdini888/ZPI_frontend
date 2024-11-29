@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/websocket_statusservice.dart';
+import 'package:zpi_frontend/src/services/websocketservice.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
 import '../services/user_data.dart';
@@ -29,14 +30,18 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   late List<String> _allInstruments = [];
   late WebSocket_StatusService _webSocketService;
   bool _isUserLoaded = false;
+  late String device;
 
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
+  device = (await UserPreferences.getSessionCode())!;
   _webSocketService = WebSocket_StatusService(
     username: user,
     group: widget.groupname,
+    device: device,
   );
+  _getAllInstruments();
   setState(() {
     _isUserLoaded = true;
   });
@@ -47,12 +52,11 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     super.initState();
     _loadAsync();
     localMembers = widget.members;
-    _getAllInstruments();
   }
 
   Future<void> _getAllInstruments() async{
     try {
-      _allInstruments = await ApiService().getAllInstrumentsFromGroup(widget.groupname);
+      _allInstruments = await ApiService().getAllInstrumentsFromGroup(widget.groupname, user);
       setState(() {});
     } catch (e) {
       print('Error fetching instruments: $e');
@@ -145,7 +149,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
 
 Future<void> fetchStringFromBackend(BuildContext context) async {
     try {
-      String receivedString = await ApiService.updateAndGetTokenForGroup(widget.groupname, user);
+      String receivedString = await ApiService().updateToken(group: widget.groupname, owner: user);
       showStringDialog(context, receivedString);
     } 
     catch (error) {
@@ -207,9 +211,14 @@ Future<void> fetchStringFromBackend(BuildContext context) async {
       
     }
     //TODO better null handling here (instrument!)
-    var response = await ApiService.updateUserInstrument(admin, groupname, member.username, instrument!);
+    var response = await ApiService().updateUserInstrument(admin, groupname, member.username, instrument!);
 
     if(response){
+      final activeGroup = await UserPreferences.getActiveGroup();
+      if(member.username == user && activeGroup == groupname)
+      {
+        UserPreferences.saveActiveGroupInstrument(instrument);
+      }
       setState(() {
         member.instrument = instrument;
     });

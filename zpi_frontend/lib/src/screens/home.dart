@@ -32,10 +32,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeWebSocket() async {
+
     username = (await UserPreferences.getUserName())!;
     groupName = (await UserPreferences.getActiveGroup())!;
     _webSocketService.connect(username, groupName);
+
+    String activeInstrument = (await UserPreferences.getActiveGroupInstrument())!;
+    List<String> instrument = await ApiService().getUserInstrument(group: groupName, username: username);
+    if(activeInstrument != instrument[0])
+      {
+        UserPreferences.saveActiveGroupInstrument(instrument[0]);
+      }
   }
+
 
   void _listenToIncomingMessages() {
     _webSocketService.messageStream.listen((message) {
@@ -46,6 +55,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showIncomingMessageDialog(String message) async {
     if (!mounted) return;
 
+    RegExp regex = RegExp(r"^piece:(.*),bpm:(\d+)$");
+    String matchedPiece = "";
+    String matchedBpm = "";
+    if (regex.hasMatch(message)) {
+      var match = regex.firstMatch(message);
+      if (match != null) {
+        matchedPiece = match.group(1)!;
+        matchedBpm = match.group(2)!;
+      }
+    }
+
     // Save a reference to the current context
     final BuildContext dialogContext = context;
 
@@ -53,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: dialogContext,
       builder: (BuildContext dialogBuilderContext) => AlertDialog(
         title: const Text('New piece to play, do you want to open it?'),
-        content: Text(message),
+        content: Text(matchedPiece),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogBuilderContext).pop(),
@@ -78,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
               await _showLoadingDialog(dialogContext, 'Downloading...');
 
               try {
-                final file = await _downloadAndSavePdf(message, instrument);
+                final file = await _downloadAndSavePdf(matchedPiece, instrument);
 
                 if (mounted) Navigator.of(dialogContext).pop(); // Close loading dialog
 
@@ -88,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       dialogContext,
                       MaterialPageRoute(
-                        builder: (context) => ReaderScreen([doc], doc.name),
+                        builder: (context) => ReaderScreen([doc], doc.name,bpm: matchedBpm != ''? int.parse(matchedBpm):0,),
                       ),
                     );
                   }

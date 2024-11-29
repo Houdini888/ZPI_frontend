@@ -25,14 +25,17 @@ class MemberListUser extends StatefulWidget {
 class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
   late String user;
+  late String device;
   late WebSocket_StatusService _webSocketService;
   bool _isUserLoaded = false;
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
+  device = (await UserPreferences.getSessionCode())!;
   _webSocketService = WebSocket_StatusService(
     username: user,
     group: widget.groupname,
+    device: device,
   );
   setState(() {
     _isUserLoaded = true;

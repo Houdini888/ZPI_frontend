@@ -5,22 +5,24 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/models/group.dart';
-
+import 'package:zpi_frontend/src/services/user_data.dart';
 import '../models/file_data.dart';
 import '../models/group_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.224.177:8080";
-  // static const String baseUrl = "http://20.215.89.12:8080";
+  static const String baseUrl = "http://192.168.248.177:8080";
   static const String authUrl = "http://192.168.224.177:8081";
-  static const String secUrl = "https://192.168.224.177:8443";
 
-  // for testing purposes only
-  final String testGroup = 'testGroup';
+  Future<String> _getDeviceCode() async {
+    return await UserPreferences.getSessionCode() ?? '';
+  }
 
-  Future<Group> fetchGroupByName(String groupName) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/getGroup?group=$groupName'));
+  Future<Group> fetchGroupByName(String groupName, String username) async {
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/group/getGroup?group=$groupName&username=$username&device=$device'),
+    );
     if (response.statusCode == 200) {
       return Group.fromJson(json.decode(response.body));
     } else {
@@ -31,24 +33,24 @@ class ApiService {
   Future<bool> joinGroup({
     required String username,
     required String token,
-    required String instrument,
   }) async {
-    final response = await http.post(Uri.parse('$baseUrl/joinGroup?username=$username&token=$token&instrument=$instrument'));
-
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/joinGroup?username=$username&token=$token&device=$device'),
+    );
     if (response.statusCode == 200) {
-      // Successfully joined the group
       return true;
     } else {
-      // Print the error for debugging
       print("Failed to join group: ${response.statusCode} - ${response.body}");
       return false;
     }
   }
 
   Future<List<GroupList>> fetchAllGroups(String username) async {
-    final url = Uri.parse('$baseUrl/getAllGroups?username=$username');
-
-    final response = await http.get(url);
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/user/getAllGroups?username=$username&device=$device'),
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
@@ -59,9 +61,10 @@ class ApiService {
   }
 
   Future<List<FileData>> fetchAllFiles(String username, String group) async {
-    final url =
-        Uri.parse('$baseUrl/getAllFiles?username=$username&group=$group');
-    final response = await http.get(url);
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/group/getAllFiles?username=$username&group=$group&device=$device'),
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = json.decode(response.body);
@@ -71,84 +74,70 @@ class ApiService {
     }
   }
 
-  Future<bool> createUser(String username, String password) async {
-    final url = Uri.parse('$baseUrl/createUser?username=$username&password=$password');
+
+  Future<bool> updateBpm(String group, String piece, String bpm) async {
 
     try {
-      // Send the POST request with the username and password in the body
+
+      final device = await _getDeviceCode();
       final response = await http.post(
-        url
+          Uri.parse('$baseUrl/groupOwner/updateBpm?group=$group&piece=$piece&bpm=$bpm&device=$device'),
       );
 
       if (response.statusCode == 200) {
-        // User created successfully
+        print('BPM updated successfully');
         return true;
       } else {
-        // Log error details for debugging
-        print("Failed to create user: ${response.statusCode} - ${response.body}");
+        print('Failed to update BPM: ${response.statusCode} - ${response.body}');
         return false;
       }
     } catch (e) {
-      // Handle connection or other errors
-      print("Error creating user: $e");
+      print('Error in updateBpm: $e');
       return false;
     }
   }
 
-
-  Future<List<User>> fetchUsersInGroup(int groupId) async {
-    final response =
-        await http.post(Uri.parse('$baseUrl/getUsersInGroup?groupId=$groupId'));
+  Future<bool> createUser(String username, String password) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/guest/createUser?username=$username&password=$password&device=$device'),
+    );
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body);
-      return jsonResponse.map((user) => User.fromJson(user)).toList();
+      return true;
     } else {
-      throw Exception('Failed to load users for group');
-    }
-  }
-
-  Future<bool> createGroup(
-      {required String group, required String owner}) async {
-    try {
-      final response = await http.post(Uri.parse('$baseUrl/createGroup?group=$group&owner=$owner'));
-
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        print("Failed to create group: ${response.reasonPhrase}");
-        return false;
-      }
-    } catch (e) {
-      print("Error creating group: $e");
+      print("Failed to create user: ${response.statusCode} - ${response.body}");
       return false;
     }
   }
 
-  Future<String> auth() async {
-    try {
-      final response = await http.get(Uri.parse('$authUrl/auth/oauth'));
-
-      if (response.statusCode == 200) {
-        return response.body;
-      } else {
-        print("Failed authorization: ${response.reasonPhrase}");
-        return "";
-      }
-    } catch (e) {
-      print("Error creating group: $e");
-      return "";
-    }
-  }
-
-  static Future<bool> removeMemberfromGroup(
-      String memberName, String groupName) async {
-    final response = await http.post(Uri.parse(
-        '$baseUrl/removeFromGroup?group=$groupName&username=$memberName'));
-
+  Future<bool> removeMemberFromGroup({
+    required String username,
+    required String groupName,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/group/removeFromGroup?username=$username&group=$groupName&device=$device'),
+    );
     if (response.statusCode == 200) {
       return true;
     } else {
       print("Failed to remove member: ${response.reasonPhrase}");
+      return false;
+    }
+  }
+
+  Future<bool> createGroup({
+    required String group,
+    required String owner,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/createGroup?group=$group&owner=$owner&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to create group: ${response.reasonPhrase}");
       return false;
     }
   }
@@ -160,27 +149,26 @@ class ApiService {
     required String piece,
     required String instrument,
     required String fileType,
+    required String bmp,
   }) async {
     try {
-      // Construct URI
-      final uri = Uri.parse('$baseUrl/upload');
+      final device = await UserPreferences.getSessionCode() ?? '';
+      final uri = Uri.parse('$baseUrl/groupOwner/upload?device=$device');
 
-      // Create a multipart request
       final request = http.MultipartRequest('POST', uri)
         ..fields['username'] = memberName
         ..fields['group'] = groupName
         ..fields['piece'] = piece
         ..fields['instrument'] = instrument
-        ..fields['filetype'] = fileType;
+        ..fields['filetype'] = fileType
+        ..fields['bmp'] = bmp;
 
-      // Add the file to the request
       request.files.add(await http.MultipartFile.fromPath(
         'file',
         file.path,
         filename: basename(file.path),
       ));
 
-      // Send the request
       final response = await request.send();
 
       if (response.statusCode == 200) {
@@ -195,70 +183,50 @@ class ApiService {
     }
   }
 
-  static Future<String> updateAndGetTokenForGroup(
-      String groupname, String username) async {
-    final response = await http.post(
-        Uri.parse('$baseUrl/updateToken?group=$groupname&username=$username'));
-
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      print("Failed to receive token: ${response.reasonPhrase}");
-      return "";
-    }
-  }
-
   Future<File?> downloadFile({
     required String username,
     required String group,
     required String piece,
     required String instrument,
   }) async {
-    try {
-      // Construct the URI with the required parameters
-      final url = Uri.parse(
-        '$baseUrl/download?username=$username&group=$group&piece=$piece&instrument=$instrument',
-      );
-
-      // Send the GET request
-      final response = await http.get(url);
-
-      // Check for successful response
-      if (response.statusCode == 200) {
-        // Retrieve the temporary directory of the device to save the file
-        final directory = await getTemporaryDirectory();
-        final filePath = '${directory.path}/$piece-$instrument.pdf';
-
-        // Write the response body to a file
-        final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
-
-        print('File downloaded to: $filePath');
-        return file;
-      } else {
-        print('Failed to download file: ${response.reasonPhrase}');
-        return null;
-      }
-    } catch (e) {
-      print('Error downloading file: $e');
+    final device = await _getDeviceCode();
+    final url = Uri.parse(
+      '$baseUrl/group/download?username=$username&group=$group&piece=$piece&instrument=$instrument&device=$device',
+    );
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/$piece-$instrument.pdf';
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+      print('File downloaded to: $filePath');
+      return file;
+    } else {
+      print('Failed to download file: ${response.reasonPhrase}');
       return null;
     }
   }
 
-  Future<List<String>> getAllInstrumentsFromGroup(String groupname) async {
-    final response =
-        await http.post(Uri.parse('$baseUrl/getAllInstruments?group=$groupname'));
+  Future<bool> removeUser(String username) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/removeUser?username=$username&device=$device'),
+    );
     if (response.statusCode == 200) {
-      List<String> jsonResponse = List<String>.from(json.decode(response.body));
-      return jsonResponse;
+      return true;
     } else {
-      throw Exception('Failed to load list of instruments in group');
+      print("Failed to remove user: ${response.reasonPhrase}");
+      return false;
     }
   }
 
-  static Future<bool> updateUserInstrument(String admin, String groupname, String member, String instrument) async {
-    final response =
-        await http.post(Uri.parse('$baseUrl/updateUserInstrument?username=$admin&group=$groupname&musician=$member&instrument=$instrument'));
+  Future<bool> updateUserInstrument(
+      String username, String group, String musician, String instrument) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse(
+          '$baseUrl/group/updateUserInstrument?username=$username&group=$group&musician=$musician&instrument=$instrument&device=$device'),
+    );
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -267,15 +235,114 @@ class ApiService {
     }
   }
 
-// static Future<bool> addMemberToGroup(String username, String groupname, String instrument) async{
-//   final response = await http.post(Uri.parse('$baseUrl/addToGroup?username=$username&group=$groupname&instrument=$instrument'));
+  Future<bool> removeFromGroupByInstrument({
+    required String username,
+    required String group,
+    required String instrument,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse(
+          '$baseUrl/group/removeFromGroupByInstrument?username=$username&group=$group&instrument=$instrument&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to remove user by instrument: ${response.reasonPhrase}");
+      return false;
+    }
+  }
 
-//   if (response.statusCode == 200) {
-//     return true;
-//   }else {
-//     print("Failed to add member: ${response.reasonPhrase}");
-//     return false;
-//   }
+  Future<bool> login(String username, String password) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/login/me?username=$username&password=$password&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to log in: ${response.reasonPhrase}");
+      return false;
+    }
+  }
 
-// }
+  Future<List<String>> getAllInstrumentsFromGroup(String groupName, String username) async {
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/group/getAllInstruments?group=$groupName&username=$username&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return List<String>.from(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load list of instruments in group');
+    }
+  }
+
+  Future<String> updateToken({
+    required String group,
+    required String owner,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/groupOwner/updateToken?group=$group&username=$owner&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return response.body; // Assuming the response body contains the token as a string
+    } else {
+      print("Failed to update token: ${response.reasonPhrase}");
+      throw Exception('Failed to update token');
+    }
+  }
+
+  Future<bool> removeToken({
+    required String group,
+    required String owner,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.post(
+      Uri.parse('$baseUrl/groupOwner/removeToken?group=$group&username=$owner&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to remove token: ${response.reasonPhrase}");
+      return false;
+    }
+  }
+
+  Future<List<String>> getUserInstrument({
+    required String group,
+    required String username,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/group/getInstrument?group=$group&username=$username&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      return List<String>.from(json.decode(response.body));
+    } else {
+      throw Exception('Failed to retrieve instruments for user');
+    }
+  }
+
+  Future<File?> downloadGroup({
+    required String group,
+    required String owner,
+  }) async {
+    final device = await _getDeviceCode();
+    final response = await http.get(
+      Uri.parse('$baseUrl/groupOwner/downloadGroup?group=$group&username=$owner&device=$device'),
+    );
+    if (response.statusCode == 200) {
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/$group.zip';
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+      print('Group file downloaded to: $filePath');
+      return file;
+    } else {
+      print('Failed to download group: ${response.reasonPhrase}');
+      return null;
+    }
+  }
 }

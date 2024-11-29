@@ -5,23 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="merged working">
-      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/models/file_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/models/file_data.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/library_main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/library_main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlist_preview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlist_preview.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/pdf_preview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/pdf_preview.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/user_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/user_data.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/app_drawer_menu.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/app_drawer_menu.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/concert_panel_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/concert_panel_admin.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/statuscircle.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/statuscircle.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +121,15 @@
       <option name="project" value="LOCAL" />
       <updated>1732031362297</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="merged working">
+      <option name="closed" value="true" />
+      <created>1732288582947</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1732288582947</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

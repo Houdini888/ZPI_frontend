@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:zpi_frontend/src/services/user_data.dart';
+
+Future<String> _getDeviceCode() async {
+  return await UserPreferences.getSessionCode() ?? '';
+}
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -18,8 +23,10 @@ class WebSocketService {
 
   Stream<String> get statusStream => _statusController.stream;
 
-  void connect(String username, String groupname) {
-    final String url = 'ws://192.168.224.177:8080/message?username=$username&group=$groupname';
+  Future<void> connect(String username, String groupname) async {
+
+    final device = await _getDeviceCode();
+    final String url = 'ws://192.168.248.177:8080/group/message?username=$username&group=$groupname&device=$device';
 
     // Close any existing connection
     disconnect();

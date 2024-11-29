@@ -5,6 +5,7 @@ class FileData {
   final String fileName;
   final String instrument;
   final String piece;
+  final String bpm;
 
   FileData({
     required this.fileId,
@@ -13,6 +14,7 @@ class FileData {
     required this.fileName,
     required this.instrument,
     required this.piece,
+    required this.bpm,
   });
 
   factory FileData.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class FileData {
       fileName: json['file_name'],
       instrument: json['instrument'],
       piece: json['piece'],
+      bpm: json['bpm'],
     );
   }
 }

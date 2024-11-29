@@ -67,17 +67,17 @@ class SharedPreferencesDemoState extends State<SetlistsMain> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: new Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: const Text('Setlists'),
-      ),
-      drawer: AppDrawer(),
+      // appBar: AppBar(
+      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      //   leading: Builder(
+      //     builder: (context) => IconButton(
+      //       icon: new Icon(Icons.menu),
+      //       onPressed: () => Scaffold.of(context).openDrawer(),
+      //     ),
+      //   ),
+      //   title: const Text('Setlists'),
+      // ),
+      // drawer: AppDrawer(),
       body: FutureBuilder<List<String>>(
           future: _lists,
           builder:

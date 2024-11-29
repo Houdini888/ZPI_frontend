@@ -9,6 +9,13 @@ void main() async {
 
   // Check if username is saved in SharedPreferences
   final username = await UserPreferences.getUserName();
+  final sessionCode = await UserPreferences.getSessionCode();
+
+  print("Kod urządzenia: $sessionCode");
+  if(sessionCode == null)
+  {
+      await UserPreferences.createSessionCode();
+  }
 
   runApp(MyApp(initialRoute: username != null ? '/home' : '/login'));
 }
