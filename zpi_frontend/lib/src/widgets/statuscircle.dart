@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import '../services/websocket_statusservice.dart';
+import 'package:zpi_frontend/src/services/user_data.dart';
+import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 
 class StatusCircle extends StatefulWidget {
   final String username;
-  final WebSocket_StatusService webSocketService;
-  final String loggedInUsername; // Add the logged-in username as a parameter.
+  final WebSocket_StatusService ws_StatusService;
+  final String loggedInUsername;
 
   const StatusCircle({
     required this.username,
-    required this.webSocketService,
+    required this.ws_StatusService,
     required this.loggedInUsername,
     Key? key,
   }) : super(key: key);
@@ -18,38 +19,70 @@ class StatusCircle extends StatefulWidget {
 }
 
 class _StatusCircleState extends State<StatusCircle> {
-  bool _isReady = false;
+  bool? _isReady = false;
+  // late bool? _isCurrentUserReady;
 
   @override
   void initState() {
     super.initState();
 
-    widget.webSocketService.statusStream.listen((statuses) {
+
+    if (widget.username == widget.loggedInUsername) {
+      _loadStoredStatus();
+    }
+
+      widget.ws_StatusService.statusStream.listen((statuses) {
       if (statuses.containsKey(widget.username)) {
         setState(() {
           _isReady = statuses[widget.username]!;
         });
       }
     });
+
   }
 
-  void _toggleStatus(bool newStatus) {
+  void _loadStoredStatus() async {
+    bool? storedStatus = await UserPreferences.getUserStatus();
+    print('stored status: $storedStatus');
+    if (storedStatus != null && storedStatus == true) {
+
+      // widget.ws_StatusService.sendMessage('ready');
+
+      if (storedStatus != null){
+          setState(() {
+          _isReady = storedStatus;
+      });
+      }
+
+    }
+  }
+
+  void _toggleStatus(bool newStatus) async {
     if (widget.username != widget.loggedInUsername) {
       return;
     }
 
-    // Send plain text "ready" or "unready" to the server.
     String message = newStatus ? 'ready' : 'unready';
-    widget.webSocketService.sendMessage(message);
+    widget.ws_StatusService.sendMessage(message);
+
+    await UserPreferences.setUserStatus(newStatus);
 
     setState(() {
       _isReady = newStatus;
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    Color circleColor = _isReady ? Colors.green : Colors.yellow;
+    Color circleColor;
+    if (_isReady == null) {
+      circleColor = Colors.grey; // Unknown or loading state
+    } else if (_isReady == true) {
+      circleColor = Colors.green; // Ready
+    } else {
+      circleColor = Colors.yellow; // Unready
+    }
 
     return GestureDetector(
       onTap: widget.username == widget.loggedInUsername
@@ -84,8 +117,8 @@ class _StatusCircleState extends State<StatusCircle> {
             }
           : null, // Disable interaction if not the logged-in user.
       child: Container(
-        width: 20.0,
-        height: 20.0,
+        width: 30.0,
+        height: 30.0,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: circleColor,

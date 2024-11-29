@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zpi_frontend/src/screens/pdf_preview.dart';
 
 import '../models/pdf_document_class.dart';
-import '../services/user_data.dart';
 import '../widgets/app_drawer_menu.dart';
 
 class SetlistPreview extends StatefulWidget {
@@ -23,7 +22,6 @@ class SetlistPreview extends StatefulWidget {
 class SetlistPreviewState extends State<SetlistPreview> {
   List<PdfNotesFile> docsList = [];
   List<PdfNotesFile> fullFileList = [];
-  late String user;
 
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
@@ -72,15 +70,8 @@ class SetlistPreviewState extends State<SetlistPreview> {
   // }
 
   Future _initPdfs() async {
-    final directory = await getApplicationDocumentsDirectory();
-    user = (await UserPreferences.getUserName())!;
-
-    // Create a subdirectory named after the current user
-    final userDirectory = Directory('${directory.path}/$user');
-    if (!await userDirectory.exists()) {
-      await userDirectory.create(recursive: true); // Create directory if it doesn't exist
-    }
-    final List<FileSystemEntity> files = userDirectory.listSync(); // List all files
+    final Directory appDir = await getApplicationDocumentsDirectory();
+    final List<FileSystemEntity> files = appDir.listSync(); // List all files
 
     final SharedPreferencesWithCache prefs = await _prefs;
     final List<String> list = (prefs.getStringList(widget.setlist) ?? []);

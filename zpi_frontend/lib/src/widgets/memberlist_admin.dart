@@ -5,6 +5,7 @@ import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
 import 'package:zpi_frontend/src/services/websocket_statusservice.dart';
 import 'package:zpi_frontend/src/services/websocketservice.dart';
+import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
 import '../services/user_data.dart';
@@ -16,8 +17,18 @@ class MemberListAdmin extends StatefulWidget {
   final String admin;
   final Function(User) onRemoveMember;
 
+  final WebSocket_StatusService ws_StatusService;
+  final String loggedInUsername;
 
-  MemberListAdmin({required this.members, required this.groupname, required this.onRemoveMember, required this.admin});
+
+  MemberListAdmin({
+    required this.members,
+    required this.groupname,
+    required this.onRemoveMember,
+    required this.admin,
+    required this.ws_StatusService, // Added
+    required this.loggedInUsername, // Added
+  });
 
   @override
   _MemberListAdminState createState() => _MemberListAdminState();
@@ -28,20 +39,12 @@ class _MemberListAdminState extends State<MemberListAdmin> {
   List<User> localMembers = [];
   late String user;
   late List<String> _allInstruments = [];
-  late WebSocket_StatusService _webSocketService;
   bool _isUserLoaded = false;
-  late String device;
-
+  bool _currentUserReady = false;
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
-  device = (await UserPreferences.getSessionCode())!;
-  _webSocketService = WebSocket_StatusService(
-    username: user,
-    group: widget.groupname,
-    device: device,
-  );
-  _getAllInstruments();
+
   setState(() {
     _isUserLoaded = true;
   });
@@ -52,6 +55,8 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     super.initState();
     _loadAsync();
     localMembers = widget.members;
+    _getAllInstruments();
+    _listenToStatusUpdates();
   }
 
   Future<void> _getAllInstruments() async{
@@ -63,12 +68,29 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     }
   }
 
+  void _listenToStatusUpdates() {
+    widget.ws_StatusService.statusStream.listen((statuses) {
+      if (statuses.containsKey(user)) {
+        bool isReady = statuses[user]!;
+        if (isReady && !_currentUserReady) {
+          setState(() {
+            _currentUserReady = true;
+          });
+        } else if (!isReady && _currentUserReady) {
+          setState(() {
+            _currentUserReady = false;
+          });
+        }
+      }
+    });
+  }
+
   @override
   void didUpdateWidget(MemberListAdmin oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.members != widget.members) {
       setState(() {
-        localMembers = widget.members; // Update local list if parent list changes
+        localMembers = widget.members;
       });
     }
   }
@@ -99,7 +121,7 @@ class _MemberListAdminState extends State<MemberListAdmin> {
           return Column(
             children: <Widget> [
               ListTile(
-              leading: StatusCircle(username: member.username, webSocketService: _webSocketService, loggedInUsername: user,),
+              leading: StatusCircle(username: member.username, ws_StatusService: widget.ws_StatusService, loggedInUsername: user,),
               title: Row(
                 children: [
                   Text(

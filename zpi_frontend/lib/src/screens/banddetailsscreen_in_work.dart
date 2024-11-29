@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:path/path.dart';
 import 'package:zpi_frontend/src/models/group.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/screens/setlists_main.dart';
@@ -12,7 +13,9 @@ import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
 import '../widgets/concert_panel_admin.dart';
 import '../widgets/memberlist_admin.dart';
+import '../services/websocket_statusservice_local.dart';
 import '../services/websocketservice.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -33,17 +36,33 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
   late String currentUser;
+  late WebSocket_StatusService _ws_StatusService;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     users = widget.group.users;
     groupName = widget.group.groupName;
-    _loadAsync();
+    _initializeWebSocket();
   }
 
   Future<void> _loadAsync() async {
     currentUser = (await UserPreferences.getUserName())!;
+  }
+
+  Future<void> _initializeWebSocket() async {
+    currentUser = (await UserPreferences.getUserName())!;
+    _ws_StatusService = WebSocket_StatusService(
+      username: currentUser,
+      group: groupName,
+    );
+
+    await _ws_StatusService.initialize();
+
+    setState(() {
+      _isInitialized = true;
+    });
   }
 
   Future<void> removeMember(User user) async {
@@ -54,15 +73,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       setState(() {
         users.removeWhere((removed) => removed == user);
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to remove member')),
-      );
-    }
+    } 
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Band details"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return DefaultTabController(
       initialIndex: 0,
       length: 3,
@@ -122,14 +148,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // const Text(
-                    //   "Current song: TODO",
-                    //   style: TextStyle(
-                    //     fontSize: 24,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: (){
                           String instrument = users.firstWhere((user) => user.username == currentUser).instrument;
@@ -153,12 +171,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                               groupname: widget.group.groupName,
                               onRemoveMember: removeMember,
                               admin: widget.adminName,
+                              ws_StatusService: _ws_StatusService,
+                              loggedInUsername: currentUser,
                             )
                           : MemberListUser(
                               members: users,
                               groupname: widget.group.groupName,
                               onRemoveMember: removeMember,
-                              admin: widget.adminName),
+                              admin: widget.adminName
+                              ),
                     ),
                   ],
                 ),

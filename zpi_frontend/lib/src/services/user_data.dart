@@ -60,6 +60,16 @@ class UserPreferences {
     await prefs.remove(_activeGroupInstrumentKey);
   }
 
+  static Future<void> setUserStatus(bool status) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('user_status', status);
+  }
+
+  static Future<bool?> getUserStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('user_status');
+  }
+
   static Future<String?> getSessionCode() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_sessionCodeKey);
