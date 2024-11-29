@@ -9,9 +9,9 @@ class WebSocket_StatusService {
   Map<String, bool> _statuses = {};
   // final String username;
 
-  WebSocket_StatusService({required String username, required String group}) {
+  WebSocket_StatusService({required String username, required String group, required String device}) {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://localhost:8080/message?username=$username&group=$group'),
+      Uri.parse('ws://192.168.248.177:8080/group/message?username=$username&group=$group&device=$device'),
     );
 
     requestStatus();

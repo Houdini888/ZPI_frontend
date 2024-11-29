@@ -11,7 +11,6 @@ import 'package:zpi_frontend/src/services/apiservice.dart';
 import '../services/user_data.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 import '../widgets/bands_files_list_admin.dart';
-import '../widgets/concert_panel_admin.dart';
 import '../widgets/memberlist_admin.dart';
 import '../services/websocket_statusservice_local.dart';
 import '../services/websocketservice.dart';
@@ -36,6 +35,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late List<User> users;
   late String groupName;
   late String currentUser;
+  late String device;
   late WebSocket_StatusService _ws_StatusService;
   bool _isInitialized = false;
 
@@ -53,9 +53,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   Future<void> _initializeWebSocket() async {
     currentUser = (await UserPreferences.getUserName())!;
+    device = (await UserPreferences.getSessionCode())!;
     _ws_StatusService = WebSocket_StatusService(
       username: currentUser,
       group: groupName,
+      device: device,
     );
 
     await _ws_StatusService.initialize();

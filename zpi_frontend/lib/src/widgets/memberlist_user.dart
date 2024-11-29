@@ -8,7 +8,6 @@ import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/instrument_dropdown.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
 
-import '../services/websocket_statusservice.dart';
 
 class MemberListUser extends StatefulWidget {
 
@@ -27,13 +26,13 @@ class _MemberListUserState extends State<MemberListUser> {
   List<User> localMembers = [];
   late String user;
   late String device;
-  late WebSocket_StatusService _webSocketService;
+  late WebSocket_StatusService _wsStatusService;
   bool _isUserLoaded = false;
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
   device = (await UserPreferences.getSessionCode())!;
-  _webSocketService = WebSocket_StatusService(
+  _wsStatusService = WebSocket_StatusService(
     username: user,
     group: widget.groupname,
     device: device,

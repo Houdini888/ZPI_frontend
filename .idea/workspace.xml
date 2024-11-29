@@ -6,19 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="merged working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/login.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/models/file_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/models/file_data.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/bandlistscreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/pdf_preview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/pdf_preview.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/user_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/user_data.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_admin.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice_local.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice_local.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_admin.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/memberlist_user.dart" afterDir="false" />
     </list>
@@ -129,7 +118,15 @@
       <option name="project" value="LOCAL" />
       <updated>1732288582947</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="merged working">
+      <option name="closed" value="true" />
+      <created>1732898612425</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1732898612425</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

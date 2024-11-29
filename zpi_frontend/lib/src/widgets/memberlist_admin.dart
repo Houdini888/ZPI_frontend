@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zpi_frontend/src/models/user.dart';
 import 'package:zpi_frontend/src/services/apiservice.dart';
-import 'package:zpi_frontend/src/services/websocket_statusservice.dart';
 import 'package:zpi_frontend/src/services/websocketservice.dart';
 import 'package:zpi_frontend/src/services/websocket_statusservice_local.dart';
 import 'package:zpi_frontend/src/widgets/statuscircle.dart';
@@ -44,7 +43,8 @@ class _MemberListAdminState extends State<MemberListAdmin> {
 
   Future<void> _loadAsync() async {
   user = (await UserPreferences.getUserName())!;
-
+  _getAllInstruments();
+  _listenToStatusUpdates();
   setState(() {
     _isUserLoaded = true;
   });
@@ -55,8 +55,6 @@ class _MemberListAdminState extends State<MemberListAdmin> {
     super.initState();
     _loadAsync();
     localMembers = widget.members;
-    _getAllInstruments();
-    _listenToStatusUpdates();
   }
 
   Future<void> _getAllInstruments() async{
