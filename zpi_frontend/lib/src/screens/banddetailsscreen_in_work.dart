@@ -16,6 +16,8 @@ import '../services/websocket_statusservice_local.dart';
 import '../services/websocketservice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../widgets/setlist.dart';
+
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
   final bool admin;
@@ -191,7 +193,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ? BandsFilesListAdmin(group: widget.group)
                 : BandsFilesListMember(group: widget.group),
             widget.admin
-                ?SetlistsMain()
+                ?Setlists(band: widget.group.groupName,)
                 // ? ConcertPanelAdmin(group: widget.group)
                 : Text("data"),
           ],

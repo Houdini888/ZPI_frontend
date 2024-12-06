@@ -82,7 +82,6 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Home'),
             onTap: () {
               Navigator.popUntil(context, (route) => route.isFirst);
-              Navigator.pop(context);
             },
           ),
           ListTile(

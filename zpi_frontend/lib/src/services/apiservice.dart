@@ -11,8 +11,8 @@ import '../models/group_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.248.177:8080";
-  static const String authUrl = "http://192.168.224.177:8081";
+  static const String baseUrl = "http://192.168.21.177:8080";
+  static const String authUrl = "http://192.168.21.177:8081";
 
   Future<String> _getDeviceCode() async {
     return await UserPreferences.getSessionCode() ?? '';

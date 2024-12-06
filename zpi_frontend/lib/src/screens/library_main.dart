@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zpi_frontend/src/services/user_data.dart';
 import 'package:zpi_frontend/src/widgets/app_drawer_menu.dart';
 import 'package:zpi_frontend/src/models/pdf_document_class.dart';
 import 'package:zpi_frontend/src/screens/pdf_preview.dart';
@@ -26,8 +27,10 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       ));
 
   Future _initPdfs() async {
+    String? username = await UserPreferences.getUserName();
     final Directory appDir = await getApplicationDocumentsDirectory();
-    final List<FileSystemEntity> files = appDir.listSync(); // List all files
+    final userDirectory = Directory('${appDir.path}/$username');
+    final List<FileSystemEntity> files = userDirectory.listSync(); // List all files
 
     final List<PdfNotesFile> loadedPdfs = [];
     for (FileSystemEntity entity in files) {
@@ -55,14 +58,15 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       // Get the selected PDF file
       File pickedPdf = File(result.files.single.path!);
 
-      // Get the app's documents directory
-      Directory appDir = await getApplicationDocumentsDirectory();
+      String? username = await UserPreferences.getUserName();
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final userDirectory = Directory('${appDir.path}/$username');
 
       // Create a unique file name for the PDF
       String fileName = result.files.single.name;
 
       // Save the PDF to the app's documents directory
-      File savedPdf = await pickedPdf.copy('${appDir.path}/$fileName');
+      File savedPdf = await pickedPdf.copy('${userDirectory.path}/$fileName');
 
       setState(() {
         if(!docsList.contains(PdfNotesFile(savedPdf)))

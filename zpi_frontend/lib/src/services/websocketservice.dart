@@ -26,7 +26,7 @@ class WebSocketService {
   Future<void> connect(String username, String groupname) async {
 
     final device = await _getDeviceCode();
-    final String url = 'ws://192.168.248.177:8080/group/message?username=$username&group=$groupname&device=$device';
+    final String url = 'ws://192.168.21.177:8080/group/message?username=$username&group=$groupname&device=$device';
 
     // Close any existing connection
     disconnect();

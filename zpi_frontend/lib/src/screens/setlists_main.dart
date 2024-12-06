@@ -26,7 +26,7 @@ class SharedPreferencesDemoState extends State<SetlistsMain> {
 
   Future<void> _addSetList() async {
     final String? listName = await openDialog();
-    if (listName == null || listName.isEmpty || listName == 'setlists') return;
+    if (listName == null || listName.isEmpty || listName.contains('setlists')) return;
     final SharedPreferencesWithCache prefs = await _prefs;
     final List<String> list = (prefs.getStringList('setlists') ?? []);
     if (list.contains(listName)) {
@@ -67,17 +67,17 @@ class SharedPreferencesDemoState extends State<SetlistsMain> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   leading: Builder(
-      //     builder: (context) => IconButton(
-      //       icon: new Icon(Icons.menu),
-      //       onPressed: () => Scaffold.of(context).openDrawer(),
-      //     ),
-      //   ),
-      //   title: const Text('Setlists'),
-      // ),
-      // drawer: AppDrawer(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: new Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: const Text('Setlists'),
+      ),
+      drawer: AppDrawer(),
       body: FutureBuilder<List<String>>(
           future: _lists,
           builder:
@@ -171,7 +171,7 @@ class SharedPreferencesDemoState extends State<SetlistsMain> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SetlistPreview(setlistName)));
+                  builder: (context) => SetlistPreview(setlistName, '')));
         },
         title: Text(setlistName),
         leading: Icon(
