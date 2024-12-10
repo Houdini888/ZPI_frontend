@@ -14,6 +14,8 @@ import '../widgets/bands_files_list_admin.dart';
 import '../widgets/memberlist_admin.dart';
 import '../services/websocket_statusservice_local.dart';
 import '../services/websocketservice.dart';
+import '../widgets/iconselector.dart';
+import '../services/websocket_iconservice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -163,7 +165,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       child: const Text("Activate Group"),
                     ),
                     const SizedBox(height: 24),
-
+                    IconSelector(username: currentUser, group: groupName, device: device, isAdmin: true,),
                     // Member List Section
                     SizedBox(
                       height: 500,
@@ -183,6 +185,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                               admin: widget.adminName
                               ),
                     ),
+                    
                   ],
                 ),
               ),
