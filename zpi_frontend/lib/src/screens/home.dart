@@ -55,16 +55,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showIncomingMessageDialog(String message) async {
     if (!mounted) return;
 
-    RegExp regex = RegExp(r"^piece:(.*),bpm:(\d+)$");
+    RegExp regex = RegExp(r"^piece:(.*),bpm:(\d*)$");
     String matchedPiece = "";
     String matchedBpm = "";
-    if (regex.hasMatch(message)) {
-      var match = regex.firstMatch(message);
-      if (match != null) {
+
+    RegExpMatch? match = regex.firstMatch(message);
+    if (match != null) {
         matchedPiece = match.group(1)!;
         matchedBpm = match.group(2)!;
-      }
     }
+
 
     // Save a reference to the current context
     final BuildContext dialogContext = context;

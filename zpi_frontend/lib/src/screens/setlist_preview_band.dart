@@ -5,16 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zpi_frontend/src/screens/pdf_preview.dart';
+import 'package:zpi_frontend/src/screens/pdf_preview_band.dart';
 
+import '../models/file_data.dart';
 import '../models/pdf_document_class.dart';
+import '../models/piece.dart';
+import '../services/apiservice.dart';
 import '../services/user_data.dart';
+import '../services/websocketservice.dart';
 import '../widgets/app_drawer_menu.dart';
 
 class SetlistPreview extends StatefulWidget {
   final String setlist;
+  final String band;
 
-  const SetlistPreview(this.setlist,{super.key});
+  const SetlistPreview(this.setlist, this.band, {super.key});
 
   @override
   SetlistPreviewState createState() => SetlistPreviewState();
@@ -22,7 +27,7 @@ class SetlistPreview extends StatefulWidget {
 
 class SetlistPreviewState extends State<SetlistPreview> {
   List<String> docsList = [];
-  List<PdfNotesFile> fullFileList = [];
+  List<Piece> fullFileList = [];
 
   final Future<SharedPreferencesWithCache> _prefs =
       SharedPreferencesWithCache.create(
@@ -37,7 +42,7 @@ class SetlistPreviewState extends State<SetlistPreview> {
     if (listName == null || listName.isEmpty) return;
     final SharedPreferencesWithCache prefs = await _prefs;
     final List<String> list =
-        (prefs.getStringList(widget.setlist) ?? []);
+        (prefs.getStringList('${widget.setlist}-${widget.band}') ?? []);
 
     docsList.removeWhere((item) => item == listName);
 
@@ -45,7 +50,7 @@ class SetlistPreviewState extends State<SetlistPreview> {
 
     setState(() {
       _lists = prefs
-          .setStringList(widget.setlist, list)
+          .setStringList('${widget.setlist}-${widget.band}', list)
           .then((_) {
         return list;
       });
@@ -55,7 +60,7 @@ class SetlistPreviewState extends State<SetlistPreview> {
   Future<void> _changeOrderOfPdfs(List<String> setlist) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     List<String> list =
-        (prefs.getStringList(widget.setlist) ?? []);
+        (prefs.getStringList('${widget.setlist}-${widget.band}') ?? []);
 
     list = setlist;
 
@@ -66,48 +71,43 @@ class SetlistPreviewState extends State<SetlistPreview> {
     });
   }
 
-  Future _initPdfs() async {
-    String? username = await UserPreferences.getUserName();
-    final Directory appDir = await getApplicationDocumentsDirectory();
-    final userDirectory = Directory('${appDir.path}/$username');
-    final List<FileSystemEntity> files =
-        userDirectory.listSync(); // List all files
-
+  Future _initPieces() async {
     final SharedPreferencesWithCache prefs = await _prefs;
-    final List<String> list = (prefs.getStringList(widget.setlist) ?? []);
+    final List<String> pdfsList =
+        (prefs.getStringList('${widget.setlist}-${widget.band}') ?? []);
+
+    String? username = await UserPreferences.getUserName();
+
+    List<FileData> pdfFiles =
+        await ApiService().fetchAllFiles(username!, widget.band);
 
     final List<String> loadedPdfs = [];
-    final List<PdfNotesFile> fullPdfs = [];
+    final List<Piece> fullPdfs = [];
 
-    for (FileSystemEntity entity in files) {
-      if (entity is File) {
-        PdfNotesFile pdfFile = PdfNotesFile(entity);
-        fullPdfs.add(pdfFile);
-        if (!list.contains(pdfFile.name)) {
-          loadedPdfs.add(pdfFile.name);
-        }
+    for (FileData entity in pdfFiles) {
+      Piece piece = Piece(name: entity.piece, bpm: entity.bpm);
+      fullPdfs.add(piece);
+      if (!pdfsList.contains(piece.name) && !loadedPdfs.contains(piece.name)) {
+        loadedPdfs.add(piece.name);
       }
     }
-    final pdfsList =
-        loadedPdfs.where((string) => string.endsWith(".pdf")).toList();
-    final fullPdfsList =
-        fullPdfs.where((string) => string.filePath.endsWith(".pdf")).toList();
 
-    pdfsList.sort();
+    loadedPdfs.sort();
 
     setState(() {
       docsList = loadedPdfs;
-      fullFileList = fullPdfsList;
+      fullFileList = fullPdfs;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _initPdfs();
+    _initPieces();
+
     textController = TextEditingController();
     _lists = _prefs.then((SharedPreferencesWithCache prefs) {
-      return prefs.getStringList(widget.setlist) ?? [];
+      return prefs.getStringList('${widget.setlist}-${widget.band}') ?? [];
     });
     // _getExternalList();
   }
@@ -118,42 +118,20 @@ class SetlistPreviewState extends State<SetlistPreview> {
     super.dispose();
   }
 
-  Future<void> previewSetlist(String startPdfName) async {
-    final SharedPreferencesWithCache prefs = await _prefs;
-    List<String> list =
-        (prefs.getStringList(widget.setlist) ?? []);
-
-    List<PdfNotesFile> setlistToPreview = [];
-    int first = 0;
-    for (int i = 0; i < list.length; i++) {
-      PdfNotesFile pdf =
-          fullFileList.where((item) => item.name == list[i]).first;
-      setlistToPreview.add(pdf);
-      if (list[i] == startPdfName) {
-        first = i;
-      }
-    }
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ReaderScreen(setlistToPreview, widget.setlist,
-                startPdfIndex: first)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: new Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
+        // leading: Builder(
+        //   builder: (context) => IconButton(
+        //     icon: new Icon(Icons.menu),
+        //     onPressed: () => Scaffold.of(context).openDrawer(),
+        //   ),
+        // ),
         title: Text(widget.setlist),
       ),
-      drawer: AppDrawer(),
+      // drawer: AppDrawer(),
       body: FutureBuilder<List<String>>(
           future: _lists,
           builder:
@@ -226,10 +204,10 @@ class SetlistPreviewState extends State<SetlistPreview> {
                         onLongPress: () {},
                         title: Text(doc),
                         leading: const Icon(
-                                Icons.picture_as_pdf,
-                                color: Colors.red,
-                                size: 32.0,
-                              )
+                          Icons.music_note_outlined,
+                          color: Colors.black54,
+                          size: 32.0,
+                        ),
                       ))
                   .toList(),
             )),
@@ -242,16 +220,16 @@ class SetlistPreviewState extends State<SetlistPreview> {
           previewSetlist(setlistPosition);
         },
         leading: const Icon(
-                Icons.picture_as_pdf,
-                color: Colors.red,
-                size: 32.0,
-              )
+          Icons.music_note_outlined,
+          color: Colors.black54,
+          size: 32.0,
+        ),
       );
 
   Future<void> _onDismissed(int index) async {
     final SharedPreferencesWithCache prefs = await _prefs;
     List<String> list =
-        (prefs.getStringList(widget.setlist) ?? []);
+        (prefs.getStringList('${widget.setlist}-${widget.band}') ?? []);
 
     docsList
         .add(fullFileList.where((item) => item.name == list[index]).first.name);
@@ -260,10 +238,59 @@ class SetlistPreviewState extends State<SetlistPreview> {
 
     setState(() {
       _lists = prefs
-          .setStringList(widget.setlist, list)
+          .setStringList('${widget.setlist}-${widget.band}', list)
           .then((_) {
         return list;
       });
     });
+  }
+
+  Future<void> previewSetlist(String startPdfName) async {
+    final SharedPreferencesWithCache prefs = await _prefs;
+    List<String> list =
+    (prefs.getStringList('${widget.setlist}-${widget.band}') ?? []);
+
+    print(fullFileList);
+    print(list);
+    List<Piece> setlistToPreview = [];
+    int first = 0;
+    for (int i = 0; i < list.length; i++) {
+      Piece piece =
+          fullFileList.where((item) => item.name == list[i]).first;
+      setlistToPreview.add(piece);
+      if (list[i] == startPdfName) {
+        first = i;
+      }
+    }
+    print(setlistToPreview);
+    _sendMessage(setlistToPreview[first].name, setlistToPreview[first].bpm);
+
+    final directory = await getApplicationDocumentsDirectory();
+    String username = (await UserPreferences.getUserName())!;
+    Directory userDirectory = Directory('${directory.path}/$username');
+    String instrument = (await UserPreferences.getActiveGroupInstrument())!;
+    String startPdfPath = '${userDirectory.path}/$startPdfName-$instrument.pdf';
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReaderScreen(setlistToPreview, widget.setlist,widget.band,startPdfPath,
+                startPdfIndex: first, bpm: setlistToPreview[first].bpm != '' ? int.parse(setlistToPreview[first].bpm):0,)));
+  }
+  Future<void> _sendMessage(String piece, String bpm) async {
+    try {
+      String message = "piece:$piece,bpm:$bpm";
+      // Send the piece name via WebSocket
+      WebSocketService().sendMessage(message);
+
+      // Notify the user that the message has been sent
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sent "$piece" to other band members')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send message: $e')),
+      );
+    }
   }
 }

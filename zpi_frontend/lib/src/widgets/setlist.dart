@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zpi_frontend/src/screens/setlist_preview.dart';
+import 'package:zpi_frontend/src/screens/setlist_preview_band.dart';
 
 
 class Setlists extends StatefulWidget {

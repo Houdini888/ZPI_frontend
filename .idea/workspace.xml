@@ -5,16 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7439081-bc63-4092-83d7-4c27091cb859" name="Changes" comment="merged working">
-      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/setlist.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/models/piece.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/pdf_preview_band.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlist_preview_band.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/banddetailsscreen_in_work.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/home.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/library_main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/library_main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlist_preview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlist_preview.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/screens/setlists_main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/apiservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice_local.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocket_statusservice_local.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/services/websocketservice.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/app_drawer_menu.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/app_drawer_menu.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/bands_files_list_member.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/setlist.dart" beforeDir="false" afterPath="$PROJECT_DIR$/zpi_frontend/lib/src/widgets/setlist.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +34,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="mergeTest" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -73,12 +73,13 @@
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;bands&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/woj-7/StudioProjects/ZPI_frontend/zpi_frontend/lib/src/widgets&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/woj-7/StudioProjects/ZPI_frontend/zpi_frontend/lib/src/screens&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\woj-7\StudioProjects\ZPI_frontend\zpi_frontend\lib\src\screens" />
       <recent name="C:\Users\woj-7\StudioProjects\ZPI_frontend\zpi_frontend\lib\src\widgets" />
     </key>
     <key name="MoveFile.RECENT_KEYS">

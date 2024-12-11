@@ -59,9 +59,14 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
       File pickedPdf = File(result.files.single.path!);
 
       String? username = await UserPreferences.getUserName();
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final userDirectory = Directory('${appDir.path}/$username');
+      final directory = await getApplicationDocumentsDirectory();
 
+      // Create a subdirectory named after the current user
+      final userDirectory = Directory('${directory.path}/$username');
+      if (!await userDirectory.exists()) {
+        await userDirectory.create(
+            recursive: true); // Create directory if it doesn't exist
+      }
       // Create a unique file name for the PDF
       String fileName = result.files.single.name;
 

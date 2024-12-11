@@ -171,7 +171,7 @@ class SharedPreferencesDemoState extends State<SetlistsMain> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SetlistPreview(setlistName, '')));
+                  builder: (context) => SetlistPreview(setlistName)));
         },
         title: Text(setlistName),
         leading: Icon(

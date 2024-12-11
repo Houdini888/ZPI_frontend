@@ -100,7 +100,14 @@ class _BandsFilesListMemberState extends State<BandsFilesListMember> {
       if (file != null) {
         // Get the application documents directory
         final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/$piece-$instrument.pdf';
+
+        // Create a subdirectory named after the current user
+        final userDirectory = Directory('${directory.path}/$user');
+        if (!await userDirectory.exists()) {
+          await userDirectory.create(
+              recursive: true); // Create directory if it doesn't exist
+        }
+        final filePath = '${userDirectory.path}/$piece-$instrument.pdf';
 
         // Save the file to the device's storage
         final savedFile = await file.copy(filePath);
