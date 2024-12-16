@@ -147,7 +147,7 @@ class _LibraryMainPageState extends State<LibraryMainPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ReaderScreen([doc], doc.name)));
+                  builder: (context) => ReaderScreen([doc], doc.name, local: false,bpm: 100)));
         },
         title: Text(doc.name),
         leading: const Icon(

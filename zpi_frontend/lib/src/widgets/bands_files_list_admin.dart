@@ -286,7 +286,7 @@ class _BandsFilesListAdminState extends State<BandsFilesListAdmin> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ReaderScreen([doc], doc.name,bpm: bpm != ''? int.parse(bpm):0,),
+              builder: (context) => ReaderScreen([doc], doc.name,bpm: bpm != ''? int.parse(bpm):0,isAdmin: true,),
             ),
           );
         }

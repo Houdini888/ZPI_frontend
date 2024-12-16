@@ -48,7 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _listenToIncomingMessages() {
     _webSocketService.messageStream.listen((message) {
-      _showIncomingMessageDialog(message);
+      RegExp regex = RegExp(r"^piece:(.*),bpm:(\d*)$");
+      if(regex.hasMatch(message)) {
+        _showIncomingMessageDialog(message);
+      }
     });
   }
 

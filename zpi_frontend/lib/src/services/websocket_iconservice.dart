@@ -9,7 +9,7 @@ class WebSocket_IconService {
 
   WebSocket_IconService({required String username, required String group, required String device}) {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://localhost:8080/group/message?username=$username&group=$group&device=$device'),
+      Uri.parse('ws://4.207.13.58:8080/group/message?username=$username&group=$group&device=$device'),
     );
 
     _channel.stream.listen((message) {

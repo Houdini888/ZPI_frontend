@@ -11,6 +11,7 @@ import '../models/piece.dart';
 import '../services/apiservice.dart';
 import '../services/user_data.dart';
 import '../services/websocketservice.dart';
+import '../widgets/iconselector.dart';
 
 class ReaderScreen extends StatefulWidget {
   const ReaderScreen(
@@ -18,6 +19,7 @@ class ReaderScreen extends StatefulWidget {
     this.title,
       this.band,
       this.startPdfPath,
+      this.instrument,
       {
     super.key,
     this.startPdfIndex = 0,
@@ -30,6 +32,7 @@ class ReaderScreen extends StatefulWidget {
   final int startPdfIndex;
   final int? bpm;
   final String band;
+  final String instrument;
 
   @override
   State<ReaderScreen> createState() => _ReaderScreenState();
@@ -40,9 +43,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
   late int currentPdfIndex;
   late Directory userDirectory;
   late String username;
-  late String instrument;
+  late String deviceCode;
 
   int totalPageCount = 0, currentPage = 1;
+
+  bool _isLoading = true;
 
   Timer? _metronomeTimer;
   int currentBeat = 0;
@@ -51,13 +56,14 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   void initState() {
     super.initState();
+
+    _initAsync();
     pdfControllerPinch = PdfController(
         document:
         PdfDocument.openFile(widget.startPdfPath));
 
     currentPdfIndex = widget.startPdfIndex;
 
-    _initAsync;
     // Start the metronome if bpm is set
     if (widget.bpm != null && widget.bpm != 0) {
       _startMetronome(widget.bpm!);
@@ -67,8 +73,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
   Future<void> _initAsync() async {
     final directory = await getApplicationDocumentsDirectory();
     username = (await UserPreferences.getUserName())!;
-    instrument = (await UserPreferences.getActiveGroupInstrument())!;
+    deviceCode = (await UserPreferences.getSessionCode())!;
     userDirectory = Directory('${directory.path}/$username');
+    setState(() {
+      _isLoading = false; // Mark loading as complete
+    });
   }
   @override
   void dispose() {
@@ -97,17 +106,17 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(widget.title),
-      ),
-      drawer: AppDrawer(),
+      // appBar: AppBar(
+      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      //   leading: Builder(
+      //     builder: (context) => IconButton(
+      //       icon: const Icon(Icons.menu),
+      //       onPressed: () => Scaffold.of(context).openDrawer(),
+      //     ),
+      //   ),
+      //   title: Text(widget.title),
+      // ),
+      // drawer: AppDrawer(),
       body: _buildUI(),
     );
   }
@@ -129,6 +138,14 @@ class _ReaderScreenState extends State<ReaderScreen> {
         },
         child: Column(
           children: [
+            Container(height: 30,),
+            if (!_isLoading)
+            IconSelector(
+              username: username,
+              group: widget.band,
+              device: deviceCode,
+              isAdmin: true,
+            ),
             _pdfView(),
             if (widget.bpm != null && widget.bpm != 0) ...[
               const SizedBox(height: 10),
@@ -245,14 +262,15 @@ class _ReaderScreenState extends State<ReaderScreen> {
     );
   }
   Future<void> _nextPiece(bool forward) async{
-    //TODO
     if(forward) {
       setState(() {
         currentPdfIndex++;
+        _handleFileForSender(widget.doc[currentPdfIndex].name, widget.doc[currentPdfIndex].bpm);
       });
     } else {
       setState(() {
       currentPdfIndex--;
+      _handleFileForSender(widget.doc[currentPdfIndex].name, widget.doc[currentPdfIndex].bpm);
       });
     }
     _sendMessage(widget.doc[currentPdfIndex].name, widget.doc[currentPdfIndex].bpm.toString());
@@ -263,16 +281,16 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
     try {
       // Check for the file or download it
-      final file = await _downloadAndSavePdf(piece, instrument);
+      final file = await _downloadAndSavePdf(piece, widget.instrument);
 
       // Close the loading dialog
       if (mounted) Navigator.of(context).pop();
 
       // Open the file if it exists
       if (file != null && await file.exists()) {
-        PdfNotesFile doc = PdfNotesFile(file);
         if (mounted) {
-            //TODO
+          pdfControllerPinch.loadDocument(PdfDocument.openFile(
+              file.path));
         }
       } else {
         throw Exception('File does not exist after download.');

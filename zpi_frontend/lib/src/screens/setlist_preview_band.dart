@@ -271,11 +271,99 @@ class SetlistPreviewState extends State<SetlistPreview> {
     String instrument = (await UserPreferences.getActiveGroupInstrument())!;
     String startPdfPath = '${userDirectory.path}/$startPdfName-$instrument.pdf';
 
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ReaderScreen(setlistToPreview, widget.setlist,widget.band,startPdfPath,
-                startPdfIndex: first, bpm: setlistToPreview[first].bpm != '' ? int.parse(setlistToPreview[first].bpm):0,)));
+    _showLoadingDialog(context, 'Checking file...');
+
+    try {
+      // Check for the file or download it
+      final file = await _downloadAndSavePdf(startPdfName, instrument);
+
+      // Close the loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      // Open the file if it exists
+      if (file != null && await file.exists()) {
+        PdfNotesFile doc = PdfNotesFile(file);
+        if (mounted) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReaderScreen(setlistToPreview, widget.setlist,widget.band,startPdfPath,instrument,
+                    startPdfIndex: first, bpm: setlistToPreview[first].bpm != '' ? int.parse(setlistToPreview[first].bpm):0,)));
+        }
+      } else {
+        throw Exception('File does not exist after download.');
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop(); // Close the loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error handling file: $e')),
+        );
+      }
+    }
+  }
+  Future<File?> _downloadAndSavePdf(String piece, String instrument) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final String user = (await UserPreferences.getUserName())!;
+
+      // Create a subdirectory named after the current user
+      final userDirectory = Directory('${directory.path}/$user');
+      if (!await userDirectory.exists()) {
+        await userDirectory.create(
+            recursive: true); // Create directory if it doesn't exist
+      }
+
+      // Define the file path within the user directory
+      final filePath = '${userDirectory.path}/$piece-$instrument.pdf';
+
+      // Return the file if it already exists
+      if (await File(filePath).exists()) {
+        return File(filePath);
+      }
+
+      // Fetch the active group name
+      final String groupName = widget.band;
+
+      // Download the file using the ApiService
+      final file = await ApiService().downloadFile(
+        username: user,
+        group: groupName,
+        piece: piece,
+        instrument: instrument,
+      );
+
+      if (file != null) {
+        // Save the downloaded file to the user-specific directory
+        final savedFile = await file.copy(filePath);
+        return savedFile;
+      } else {
+        throw Exception('Failed to download file.');
+      }
+    } catch (e) {
+      throw Exception('Error downloading file: $e');
+    }
+  }
+
+  Future<void> _showLoadingDialog(BuildContext context, String message) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            content: Row(
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(width: 16),
+                Expanded(child: Text(message)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
   Future<void> _sendMessage(String piece, String bpm) async {
     try {

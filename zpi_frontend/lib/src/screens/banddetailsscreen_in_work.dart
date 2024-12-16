@@ -167,7 +167,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       child: const Text("Activate Group"),
                     ),
                     const SizedBox(height: 24),
-                    IconSelector(username: currentUser, group: groupName, device: device, isAdmin: true,),
                     // Member List Section
                     SizedBox(
                       height: 500,
